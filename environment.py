@@ -13,7 +13,7 @@ import time
 #@param robot {Robot} Robot that must get from point A to point B
 #@return {Environment} Returns a game that can render itself
 class Environment:
-    def __init__(self, start, goal, obstacle_list, robot, resolution):
+    def __init__(self, start, goal, obstacle_list, robot, resolution, algorithm):
         self.start = start
         self.goal = goal
         self.obstacle_list = obstacle_list
@@ -25,12 +25,14 @@ class Environment:
         self.WHITE = (255,255,255)
         self.screen.fill(self.WHITE)
         self.clock = pygame.time.Clock()
+        self.algorithm = algorithm
         self.main()
 
     def main(self):
         self.draw()
         print "thinking"
-        movement_path = self.robot.plan_and_move(self.start, self.goal, self.obstacle_list, self.resolution, self.screen)
+        time.sleep(5)
+        movement_path = self.robot.plan(self.start, self.goal, self.obstacle_list, self.resolution, self.screen, self.algorithm)
         print self.start, "start"
         self.robot.current_state = (300,300)
         for state in movement_path:
@@ -43,7 +45,6 @@ class Environment:
         
         while True:
             self.draw()
-            #self.robot.move([0.5,0.5])
             self.clock.tick(10)
 
     def draw(self):

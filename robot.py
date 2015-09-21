@@ -1,6 +1,7 @@
 import physical_object
 import search_lib
 import pygame
+import time
 
 class Robot(physical_object.Physical_Object):
     def __init__ (self, polygon_list):
@@ -76,17 +77,18 @@ class Robot(physical_object.Physical_Object):
             self.collision_memory[state] = isSafe
         
     #displays path on screen
-    def display_path(self, path, screen, previous_path = [(0,0), (0, 0.5)]):
+    def display_path(self, path, screen, obstacle_list, previous_path = [(0,0), (0, 0.5)]):
          BLACK = (0, 0, 0) 
          WHITE = (255, 255, 255)
          closed = False
-         try:
-             pygame.draw.lines(screen, WHITE, closed, previous_path, 5)
-         except:
-             pygame.draw.lines(screen, WHITE, closed, [(0,0),(0,0.5)], 5)
          pygame.draw.lines(screen, BLACK, closed, path, 5)
+         self.draw_parts(screen)
+         for physical_object in self.obstacle_list:
+             physical_object.draw_parts(screen)
          pygame.display.update()
          pygame.display.flip()
+         screen.fill(WHITE)
+         time.sleep(0.01)
 
     def in_bounds(self, new_state):
         return new_state[0] < 400 and new_state[0] > 0 and new_state[1] < 400 and new_state[1] > 0
@@ -96,7 +98,7 @@ class Robot(physical_object.Physical_Object):
     #@param obstacle_list {list of Obstacle}
     #Draws the current paths in mind
     #returns a final path to the goal
-    def DFS(self, start, goal, obstacle_list, resolution, screen):
+    def blind_search(self, start, goal, obstacle_list, resolution, screen, algorithm):
         self.obstacle_list  = obstacle_list #stored in robot's memory
         explored = {}
         start_node = search_lib.Node(start)
@@ -113,8 +115,11 @@ class Robot(physical_object.Physical_Object):
                 if new_state not in explored and self.in_bounds(new_state):
                     explored[new_state] = True
                     new_node = search_lib.Node(new_state, nodeToExpand)
-                    queue.append(new_node)
-                    self.display_path(new_node.path, screen, nodeToExpand)
+                    if (algorithm == "BFS"):
+                        queue.insert(0,new_node)
+                    elif (algorithm == "DFS"):
+                        queue.append(new_node)
+                    self.display_path(new_node.path, screen, nodeToExpand, obstacle_list)
                 else:
                     continue
         return None
@@ -124,8 +129,8 @@ class Robot(physical_object.Physical_Object):
     #@param {Obstacle} obstacle_list
     #@param {int} resolution of grid
     #@param {Surface} screen to display paths on
-    def plan_and_move(self, start, goal, obstacle_list, resolution, screen):
-        path =  self.DFS(start, goal, obstacle_list, resolution, screen)
+    def plan(self, start, goal, obstacle_list, resolution, screen, algorithm):
+        path =  self.blind_search(start, goal, obstacle_list, resolution, screen, algorithm)
         return path
 
         

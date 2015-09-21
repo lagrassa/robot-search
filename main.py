@@ -13,4 +13,5 @@ triangle.color = (0, 0, 255)
 becky = becky.becky
 block = block.block
 resolution = 10
-basic_game = environment.Environment(reference_point, (300,300), [block], becky, resolution)
+algorithm = "BFS"
+basic_game = environment.Environment(reference_point, (300,300), [block], becky, resolution, algorithm)
