@@ -31,6 +31,7 @@ class Environment:
         self.main()
 
     def main(self):
+        print "environment start", self.start
         self.draw()
         print "thinking"
         time.sleep(5)

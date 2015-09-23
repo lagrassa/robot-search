@@ -136,6 +136,7 @@ class Robot(physical_object.Physical_Object):
     #@param {int} resolution of grid
     #@param {Surface} screen to display paths on
     def plan(self, start, goal, obstacle_list, resolution, screen, algorithm):
+        print "planning start: ", start
         path =  self.blind_search(start, goal, obstacle_list, resolution, screen, algorithm)
         return path
 
