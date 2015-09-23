@@ -3,7 +3,7 @@ class Node:
         self.state = state
         self.parent = parent
         if self.parent is not None:
-            self.path = tuple([self.state] + list(self.parent.path))
+            self.path = tuple(list(self.parent.path)+[self.state])
         else:
             self.path = tuple([self.state])
 

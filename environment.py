@@ -36,13 +36,16 @@ class Environment:
         print "thinking"
         time.sleep(5)
         movement_path = self.robot.plan(self.start, self.goal, self.obstacle_list, self.resolution, self.screen, self.algorithm)
+        print "this is the found start by the plan", movement_path[0]
+        print "this is the last part of the plan", movement_path[-1]
         for state in movement_path:
-            movement_vector = [self.robot.current_state[0]-state[0], self.robot.current_state[1]-state[1]]
+            movement_vector = [state[0]-self.robot.current_state[0], state[1]-self.robot.current_state[1]]
             self.robot.move(movement_vector)
             self.robot.current_state = state
+            print self.robot.current_state
             time.sleep(0.05)
-            self.robot.display_path(movement_path, self.screen, self.obstacle_list)
-            #self.draw()
+            #self.robot.display_path(movement_path, self.screen, self.obstacle_list)
+            self.draw()
 
         
         while True:

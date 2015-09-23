@@ -13,11 +13,14 @@ class Robot(physical_object.Physical_Object):
     #@param {Polygon} part - part of the robot that's moving
     #@param {tuple}movement_vector - list of changes in position, of form (deltaX, deltaY, deltaZ.......)
     def move_part(self, part, movement_vector):
+        print "movement_vector"
         new_vertex_locations = []
         for vertex in part.all_vertices:
-            vertex = tuple([vertex[dimension] + movement_vector[dimension] for dimension in range(len(movement_vector))])
+            vertex = (vertex[0]+movement_vector[0], vertex[1]+movement_vector[1])
+            #vertex = tuple([vertex[dimension] + movement_vector[dimension] for dimension in range(len(movement_vector))])
             new_vertex_locations.append(vertex)
         part.all_vertices = new_vertex_locations
+        print "vertex location", new_vertex_locations[0]
         return part
 
     # moves entire robot, part by part to a new location
