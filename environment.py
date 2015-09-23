@@ -26,6 +26,8 @@ class Environment:
         self.screen.fill(self.WHITE)
         self.clock = pygame.time.Clock()
         self.algorithm = algorithm
+        self.robot.move_to_point(self.start)
+        self.robot.current_state = self.start
         self.main()
 
     def main(self):
@@ -33,14 +35,13 @@ class Environment:
         print "thinking"
         time.sleep(5)
         movement_path = self.robot.plan(self.start, self.goal, self.obstacle_list, self.resolution, self.screen, self.algorithm)
-        print self.start, "start"
-        self.robot.current_state = (300,300)
         for state in movement_path:
             movement_vector = [self.robot.current_state[0]-state[0], self.robot.current_state[1]-state[1]]
             self.robot.move(movement_vector)
             self.robot.current_state = state
             time.sleep(0.05)
-            self.draw()
+            self.robot.display_path(movement_path, self.screen, self.obstacle_list)
+            #self.draw()
 
         
         while True:

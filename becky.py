@@ -9,4 +9,4 @@ triangle_other_vertex_list = [(0,50),(50,50)]
 triangle = polygon.Polygon(triangle_reference_point, triangle_other_vertex_list)
 triangle.color = (0, 0, 255)
 
-becky = robot.Robot([square, triangle])
+becky = robot.Robot([square, triangle], reference_point)

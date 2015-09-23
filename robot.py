@@ -4,9 +4,10 @@ import pygame
 import time
 
 class Robot(physical_object.Physical_Object):
-    def __init__ (self, polygon_list):
+    def __init__ (self, polygon_list, current_location):
         physical_object.Physical_Object.__init__(self, polygon_list)
         self.collision_memory = {}
+        self.current_location = current_location
    
     #moves the robot part to a new location
     #@param {Polygon} part - part of the robot that's moving
@@ -24,6 +25,11 @@ class Robot(physical_object.Physical_Object):
     def move(self, movement_vector):
         for body_part in self.polygon_list:
             self.body_part = self.move_part(body_part, movement_vector)
+
+    def move_to_point(self, point):
+        deltaX = point[0]-self.current_location[0]
+        deltaY = point[1]-self.current_location[1]
+        self.move([deltaX, deltaY])
 
     #finds all possible places robot can move to 
     #@param {Node}nodeToExpand
@@ -88,7 +94,7 @@ class Robot(physical_object.Physical_Object):
          pygame.display.update()
          pygame.display.flip()
          screen.fill(WHITE)
-         time.sleep(0.01)
+         time.sleep(0.001)
 
     def in_bounds(self, new_state):
         return new_state[0] < 400 and new_state[0] > 0 and new_state[1] < 400 and new_state[1] > 0
