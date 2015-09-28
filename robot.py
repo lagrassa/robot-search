@@ -2,6 +2,7 @@ import physical_object
 import search_lib
 import pygame
 import time
+import collision_test
 
 class Robot(physical_object.Physical_Object):
     def __init__ (self, polygon_list, current_location):
@@ -13,14 +14,12 @@ class Robot(physical_object.Physical_Object):
     #@param {Polygon} part - part of the robot that's moving
     #@param {tuple}movement_vector - list of changes in position, of form (deltaX, deltaY, deltaZ.......)
     def move_part(self, part, movement_vector):
-        print "movement_vector"
         new_vertex_locations = []
         for vertex in part.all_vertices:
             vertex = (vertex[0]+movement_vector[0], vertex[1]+movement_vector[1])
             #vertex = tuple([vertex[dimension] + movement_vector[dimension] for dimension in range(len(movement_vector))])
             new_vertex_locations.append(vertex)
         part.all_vertices = new_vertex_locations
-        print "vertex location", new_vertex_locations[0]
         return part
 
     # moves entire robot, part by part to a new location
@@ -38,7 +37,7 @@ class Robot(physical_object.Physical_Object):
     #@param {Node}nodeToExpand
     #@param {resolution} spaces on grid on which robot may move
     #currently only supports 2 dimensions
-    def successor(self, nodeToExpand, resolution):
+    def successor(self, nodeToExpand, resolution, obstacle_list):
         state = nodeToExpand.state
         x = state[0]
         y = state[1]
@@ -46,7 +45,7 @@ class Robot(physical_object.Physical_Object):
         all_possible_states = [(x+d, y), (x-d, y), (x, y+d), (x, y-d)]
         safe_states = []
         for possible_state in all_possible_states:
-            if not self.collision_test(possible_state):
+            if not self.collision_test(possible_state, obstacle_list):
                 safe_states.append(possible_state)
         return safe_states
 
@@ -72,14 +71,12 @@ class Robot(physical_object.Physical_Object):
 
     #Figures out whether or not there will be a collision from that state, then stores that in its memory
     #@param {Tuple} state 
-    def collision_test(self, state):
+    def collision_test(self, state, obstacle_list):
         if state in self.collision_memory:
             return self.collision_memory[state]
         else:
-            #Check each obstacle to see if it is safe
-            for obstacle in self.obstacle_list:
-                if self.will_collide_with_obstacle(obstacle):
-                    return False
+            if collision_test.will_collide(state, self, obstacle_list):
+                isSafe = False
             else:
                 isSafe = True
             
@@ -118,7 +115,7 @@ class Robot(physical_object.Physical_Object):
             if nodeToExpand.state == goal:
                 return nodeToExpand.path
 
-            new_state_list = self.successor(nodeToExpand, resolution)
+            new_state_list = self.successor(nodeToExpand, resolution, obstacle_list)
 
             for new_state in new_state_list:
                 if new_state not in explored and self.in_bounds(new_state):
@@ -139,7 +136,6 @@ class Robot(physical_object.Physical_Object):
     #@param {int} resolution of grid
     #@param {Surface} screen to display paths on
     def plan(self, start, goal, obstacle_list, resolution, screen, algorithm):
-        print "planning start: ", start
         path =  self.blind_search(start, goal, obstacle_list, resolution, screen, algorithm)
         return path
 

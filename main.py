@@ -13,6 +13,6 @@ triangle.color = (0, 0, 255)
 becky = becky.create_becky(reference_point)
 block = block.block
 resolution = 10
-algorithm = "DFS"
+algorithm = "BFS"
 print "main start ", reference_point
 basic_game = environment.Environment(reference_point, (300,300), [block], becky, resolution, algorithm)

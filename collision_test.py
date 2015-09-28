@@ -1,15 +1,18 @@
 import numpy
 import copy
-def collision_test(state,robot, obstacle_list):
+import robot
+import physical_object
+import obstacle
+def will_collide(state,robot, obstacle_list):
     robot_copy = copy.copy(robot)
     #based on state, update copy of robot's position
     robot_copy.move_to_point(state)
     for obstacle in obstacle_list:
         for obstacle_polygon in obstacle.polygon_list:
             for robot_copy_polygon in robot_copy.polygon_list:
-                if not polygons_separate(robot_copy_polygon, obstacle):
-                    return False #cannot go to that spot
-    return True #All is fine
+                if not polygons_separate(robot_copy_polygon, obstacle_polygon):
+                    return True #cannot go to that spot
+    return False #All is fine
 
 def polygons_separate(robot_polygon,  obstacle_polygon):
     isSeparated = False
@@ -75,5 +78,7 @@ class Polygon:
 box1 = Polygon([(0,0),(0,1),(1,1),(1,0)])
 box2 = Polygon([(2,1),(2,2),(3,2),(3,1)])
 box3 = Polygon([(0, 0.5), (0, 1.5), (1,1.5), (1, 0.5)])
-print polygons_separate(box1, box3)
+#robot1 = robot.Robot([box1], (0,0))
+#obstacle1 = obstacle.Obstacle([box2]) 
+#print polygons_separate(box1, box3)
 

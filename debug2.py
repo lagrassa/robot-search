@@ -31,17 +31,24 @@ class Environment:
         self.main()
 
     def main(self):
+        print "environment start", self.start
         self.draw()
         print "thinking"
-        movement_path = self.robot.plan(self.start, self.goal, self.obstacle_list, self.resolution, self.screen, self.algorithm)
+        #movement_path = self.robot.plan(self.start, self.goal, self.obstacle_list, self.resolution, self.screen, self.algorithm)
+        movement_path = [self.start]
+        for i in range(400):
+            movement_path.append(tuple([movement_path[i-1][0],movement_path[i-1][1]+1]))
+        #print "this is the found start by the plan", movement_path[0]
+        #print "this is the last part of the plan", movement_path[-1]
         for state in movement_path:
             movement_vector = [state[0]-self.robot.current_state[0], state[1]-self.robot.current_state[1]]
             self.robot.move(movement_vector)
             self.robot.current_state = state
-            time.sleep(0.05)
+            print "movement_vector perceieved: ", movement_vector
+
+            time.sleep(2)
             #self.robot.display_path(movement_path, self.screen, self.obstacle_list)
             self.draw()
-
         
         while True:
             self.draw()
