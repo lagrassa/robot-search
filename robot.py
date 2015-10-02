@@ -116,7 +116,7 @@ class Robot(physical_object.Physical_Object):
                 return nodeToExpand.path
 
             new_state_list = self.successor(nodeToExpand, resolution, obstacle_list)
-
+            print self.current_location
             for new_state in new_state_list:
                 if new_state not in explored and self.in_bounds(new_state):
                     explored[new_state] = True

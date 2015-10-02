@@ -4,7 +4,7 @@ import robot
 import physical_object
 import obstacle
 def will_collide(state,robot, obstacle_list):
-    robot_copy = copy.copy(robot)
+    robot_copy =  copy.deepcopy(robot)
     #based on state, update copy of robot's position
     robot_copy.move_to_point(state)
     for obstacle in obstacle_list:
