@@ -33,17 +33,19 @@ class Environment:
 
     def main(self):
         self.draw()
+        state_to_check = (200,200)
+        assert(self.robot.collision_test(state_to_check, self.obstacle_list));
         print "thinking"
-        movement_path = self.robot.plan(self.start, self.goal, self.obstacle_list, self.resolution, self.screen, self.algorithm)
-        for state in movement_path:
-            assert(not(collision_test.will_collide(state, self.robot, self.obstacle_list)))
-        for state in movement_path:
-            movement_vector = [state[0]-self.robot.current_state[0], state[1]-self.robot.current_state[1]]
-            self.robot.move(movement_vector)
-            self.robot.current_state = state
-            time.sleep(0.05)
+        #movement_path = self.robot.plan(self.start, self.goal, self.obstacle_list, self.resolution, self.screen, self.algorithm)
+        #for state in movement_path:
+        #    assert(not(collision_test.will_collide(state, self.robot, self.obstacle_list)))
+        #for state in movement_path:
+        #    movement_vector = [state[0]-self.robot.current_state[0], state[1]-self.robot.current_state[1]]
+        #    self.robot.move(movement_vector)
+        #    self.robot.current_state = state
+        #    time.sleep(0.05)
             #self.robot.display_path(movement_path, self.screen, self.obstacle_list)
-            self.draw()
+            #self.draw()
 
         
         while True:

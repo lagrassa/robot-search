@@ -45,8 +45,15 @@ class Robot(physical_object.Physical_Object):
         all_possible_states = [(x+d, y), (x-d, y), (x, y+d), (x, y-d)]
         safe_states = []
         for possible_state in all_possible_states:
-            if not self.collision_test(possible_state, obstacle_list):
+            if not collision_test.will_collide(possible_state, self, obstacle_list):
+                assert(possible_state != (200,200))
                 safe_states.append(possible_state)
+        for state in safe_states:
+            try:
+                assert(not(self.collision_test(possible_state, obstacle_list)))
+                assert(not(collision_test.will_collide(possible_state, self, obstacle_list)))
+            except:
+                "Assertion Error: unsafe node added to search"
         return safe_states
 
     #@param {Obstacle} obstacle robot can collide with
@@ -94,7 +101,7 @@ class Robot(physical_object.Physical_Object):
          pygame.display.update()
          pygame.display.flip()
          screen.fill(WHITE)
-         time.sleep(0.001)
+         time.sleep(0.000001)
 
     def in_bounds(self, new_state):
         return new_state[0] < 400 and new_state[0] > 0 and new_state[1] < 400 and new_state[1] > 0
@@ -116,7 +123,6 @@ class Robot(physical_object.Physical_Object):
                 return nodeToExpand.path
 
             new_state_list = self.successor(nodeToExpand, resolution, obstacle_list)
-            print self.current_location
             for new_state in new_state_list:
                 if new_state not in explored and self.in_bounds(new_state):
                     explored[new_state] = True

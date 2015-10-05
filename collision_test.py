@@ -11,7 +11,9 @@ def will_collide(state,robot, obstacle_list):
         for obstacle_polygon in obstacle.polygon_list:
             for robot_copy_polygon in robot_copy.polygon_list:
                 if not polygons_separate(robot_copy_polygon, obstacle_polygon):
+                    print "CANNOT GO TO STATE"
                     return True #cannot go to that spot
+                    
     return False #All is fine
 
 def polygons_separate(robot_polygon,  obstacle_polygon):
