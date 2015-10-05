@@ -45,15 +45,10 @@ class Robot(physical_object.Physical_Object):
         all_possible_states = [(x+d, y), (x-d, y), (x, y+d), (x, y-d)]
         safe_states = []
         for possible_state in all_possible_states:
-            if not collision_test.will_collide(possible_state, self, obstacle_list):
+            #if not(self.collision_check(possible_state, obstacle_list)):
+            if not self.collision_check(possible_state, obstacle_list):
                 assert(possible_state != (200,200))
                 safe_states.append(possible_state)
-        for state in safe_states:
-            try:
-                assert(not(self.collision_test(possible_state, obstacle_list)))
-                assert(not(collision_test.will_collide(possible_state, self, obstacle_list)))
-            except:
-                "Assertion Error: unsafe node added to search"
         return safe_states
 
     #@param {Obstacle} obstacle robot can collide with
@@ -78,16 +73,13 @@ class Robot(physical_object.Physical_Object):
 
     #Figures out whether or not there will be a collision from that state, then stores that in its memory
     #@param {Tuple} state 
-    def collision_test(self, state, obstacle_list):
-        if state in self.collision_memory:
-            return self.collision_memory[state]
+    def collision_check(self, state, obstacle_list):
+        if state in self.collision_memory and False:
+            willCollide =  self.collision_memory[state]
         else:
-            if collision_test.will_collide(state, self, obstacle_list):
-                isSafe = False
-            else:
-                isSafe = True
-            
-            self.collision_memory[state] = isSafe
+            willCollide = collision_test.will_collide(state, self, obstacle_list)
+            self.collision_memory[state] = willCollide 
+        return willCollide
         
     #displays path on screen
     def display_path(self, path, screen, obstacle_list, previous_path = [(0,0), (0, 0.5)]):
@@ -134,6 +126,7 @@ class Robot(physical_object.Physical_Object):
                     self.display_path(new_node.path, screen, nodeToExpand, obstacle_list)
                 else:
                     continue
+        print "found nothing"
         return None
     #Currently only supports 2 dimensions for simplicity
     #@param startnode
