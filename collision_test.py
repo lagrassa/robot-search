@@ -11,7 +11,7 @@ def will_collide(state,robot, obstacle_list):
             for robot_copy_polygon in robot_copy.polygon_list:
                 if not polygons_separate(robot_copy_polygon, obstacle_polygon):
                     return True #cannot go to that spot
-    
+     
     return False #All is fine
 
 def polygons_separate(robot_polygon,  obstacle_polygon):
@@ -22,23 +22,41 @@ def polygons_separate(robot_polygon,  obstacle_polygon):
     for normal in robot_polygon_normals:
         projection_extremes_robot = get_min_max(robot_polygon, normal);
         projection_extremes_obstacle = get_min_max(obstacle_polygon, normal)
-        if axes_separate(projection_extremes_robot, projection_extremes_obstacle):
+        if axes_separate(projection_extremes_robot, projection_extremes_obstacle, normal):
+            #print "FOUND THIS ONE"
+            #print projection_extremes_robot.min_proj, projection_extremes_robot.max_proj, "RETURNED EXTREMES"
             isSeparated = True
+            #print "robot first"
             break
+     
+    if isSeparated:
+        return True
 
     for normal in obstacle_polygon_normals:
         projection_extremes_obstacle = get_min_max(obstacle_polygon, normal);
         projection_extremes_robot = get_min_max(robot_polygon, normal)
-        if axes_separate(projection_extremes_obstacle, projection_extremes_robot):
+        if axes_separate(projection_extremes_obstacle, projection_extremes_robot, normal):
+            #print "FOR THIS NORMAL",  normal
             isSeparated = True
             break
     if isSeparated:
         return True
+
     return False
     
 
-def axes_separate(projection1, projection2):
-    return projection1.max_proj < projection2.min_proj or projection2.max_proj < projection1.min_proj
+def axes_separate(projection1, projection2, axis):
+    if abs(numpy.dot(projection1.max_proj, axis)) < abs(numpy.dot(projection2.min_proj, axis)):#something is wrong here. This is not true in the test case
+        #print "min projection of square", projection2.min_proj
+        #print "max projection of triangle", projection1.max_proj
+        #print "case 1"
+        #print axis
+        return True
+    elif abs(numpy.dot(projection2.max_proj, axis)) < abs(numpy.dot(projection1.min_proj, axis)):
+        #print "case 2"
+        return True
+    return False
+    #return projection1.max_proj < projection2.min_proj or projection2.max_proj < projection1.min_proj
 
 def get_min_max(polygon, axis):
     projections = []
@@ -46,11 +64,14 @@ def get_min_max(polygon, axis):
     for i in range(0,len(polygon.all_vertices)):
         point_to = polygon.all_vertices[i]
         edge = (point_to[0]-origin[0], point_to[1]-origin[1])
-        projection_scalar = (numpy.dot(axis,edge)/numpy.dot(axis,axis))
+        projection_scalar = (1.0*numpy.dot(axis,edge)/numpy.dot(axis,axis))
         projection = (projection_scalar * axis[0], projection_scalar * axis[1])
         projections.append(projection)
-    minimum = min(projections, key = lambda p: numpy.linalg.norm(p))
-    maximum = max(projections, key = lambda p: numpy.linalg.norm(p))
+        #print projection
+    minimum = min(projections, key = lambda p: abs(numpy.dot(p, axis)))
+    maximum = max(projections, key = lambda p: abs(numpy.dot(p, axis)))
+    #print "min", minimum
+    #print "max", maximum
     return Projection_Extremes(minimum, maximum)
 
 
@@ -191,7 +212,7 @@ class Robot(physical_object.Physical_Object):
                     self.display_path(new_node.path, screen, nodeToExpand, obstacle_list)
                 else:
                     continue
-        print "found nothing"
+        #print "found nothing"
         return None
     #Currently only supports 2 dimensions for simplicity
     #@param startnode
@@ -230,15 +251,16 @@ class Polygon:
     def draw(self, screen):
         pygame.draw.polygon(screen, self.color, self.all_vertices)
 '''
-reference_point = (200,250)
+reference_point = (230,230)
 other_vertex_list = [(0,50), (50,50), (50,0)]
 square = Polygon(reference_point, other_vertex_list)
 triangle_reference_point = (reference_point[0], reference_point[1]-50)
+triangle_reference_point = (230,230)
 triangle_other_vertex_list = [(0,50),(50,50)]
 triangle = Polygon(triangle_reference_point, triangle_other_vertex_list)
 triangle.color = (0, 0, 255)
 
-becky = Robot([square, triangle], reference_point)
+becky = Robot([triangle], reference_point)
 
 other_vertex_list = [(0,50), (50,50), (50,0)]
 reference_point = (200,200)
@@ -251,10 +273,8 @@ screen.fill((255,255,255))
 becky.draw_parts(screen)
 block.draw_parts(screen)
 clock = pygame.time.Clock() 
+#print polygons_separate(triangle, square)
+print will_collide((230,230), becky, [block])
 while True:
     clock.tick(5)
-    print polygons_separate(becky.polygon_list[1], block.polygon_list[0])
-    print becky.polygon_list[1].all_vertices
-    #print will_collide((0,0), becky, [block])
 '''
-

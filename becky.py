@@ -9,5 +9,6 @@ def create_becky(reference_point):
     triangle = polygon.Polygon(triangle_reference_point, triangle_other_vertex_list)
     triangle.color = (0, 0, 255)
     becky = robot.Robot([square, triangle], reference_point)
+    becky = robot.Robot([triangle], reference_point)
     return becky
 

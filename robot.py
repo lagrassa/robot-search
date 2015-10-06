@@ -47,7 +47,6 @@ class Robot(physical_object.Physical_Object):
         for possible_state in all_possible_states:
             #if not(self.collision_check(possible_state, obstacle_list)):
             if not self.collision_check(possible_state, obstacle_list):
-                assert(possible_state != (200,200))
                 safe_states.append(possible_state)
         return safe_states
 
