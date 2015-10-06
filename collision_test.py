@@ -8,7 +8,6 @@ def will_collide(state,robot, obstacle_list):
     robot_copy.move_to_point(state)
     for obstacle in obstacle_list:
         for obstacle_polygon in obstacle.polygon_list:
-            print len(robot_copy.polygon_list)
             for robot_copy_polygon in robot_copy.polygon_list:
                 if not polygons_separate(robot_copy_polygon, obstacle_polygon):
                     return True #cannot go to that spot
@@ -230,7 +229,7 @@ class Polygon:
     #tests if self has collided with obstacles
     def draw(self, screen):
         pygame.draw.polygon(screen, self.color, self.all_vertices)
-
+'''
 reference_point = (200,250)
 other_vertex_list = [(0,50), (50,50), (50,0)]
 square = Polygon(reference_point, other_vertex_list)
@@ -257,3 +256,5 @@ while True:
     print polygons_separate(becky.polygon_list[1], block.polygon_list[0])
     print becky.polygon_list[1].all_vertices
     #print will_collide((0,0), becky, [block])
+'''
+

@@ -4,7 +4,7 @@ import pygame
 import environment
 
 other_vertex_list = [(0,50), (50,50), (50,0)]
-reference_point = (100,200)
+reference_point = (50,50)
 square = polygon.Polygon(reference_point, other_vertex_list)
 triangle_reference_point = (reference_point[0], reference_point[1]+50)
 triangle_other_vertex_list = [(0,50),(50,50)]

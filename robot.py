@@ -93,7 +93,6 @@ class Robot(physical_object.Physical_Object):
          pygame.display.update()
          pygame.display.flip()
          screen.fill(WHITE)
-         time.sleep(0.000001)
 
     def in_bounds(self, new_state):
         return new_state[0] < 400 and new_state[0] > 0 and new_state[1] < 400 and new_state[1] > 0
@@ -108,10 +107,9 @@ class Robot(physical_object.Physical_Object):
         explored = {}
         start_node = search_lib.Node(start)
         queue = [start_node]        
-        
         while len(queue) > 0:
             nodeToExpand = queue.pop()
-            if nodeToExpand.state == goal:
+            if (nodeToExpand.state == goal):
                 return nodeToExpand.path
 
             new_state_list = self.successor(nodeToExpand, resolution, obstacle_list)
@@ -128,6 +126,38 @@ class Robot(physical_object.Physical_Object):
                     continue
         print "found nothing"
         return None
+    def cost_plus_heuristic(self, node, goal):
+        cost = node.cost
+        heuristic = self.distance(node.state, goal)
+        return cost + heuristic
+
+    def distance(self, state1, state2):
+        return ((state1[0]-state2[0])**2+(state1[1]-state2[1])**2)**0.5
+
+    def a_star(self, start, goal, obstacle_list, resolution, screen, algorithm):
+        self.obstacle_list  = obstacle_list #stored in robot's memory
+        explored = {}
+        start_node = search_lib.Node(start)
+        start_node.cost = 0
+        queue = [start_node]        
+        while len(queue) > 0:
+            queue = sorted(queue, key = lambda node: self.cost_plus_heuristic(node, goal))
+            nodeToExpand = queue.pop(0)
+            if (nodeToExpand.state == goal):
+                return nodeToExpand.path
+            
+            new_state_list = self.successor(nodeToExpand, resolution, obstacle_list)
+            for new_state in new_state_list:
+                if new_state not in explored and self.in_bounds(new_state):
+                    explored[new_state] = True
+                    new_node = search_lib.Node(new_state, nodeToExpand)
+                    new_node.cost = nodeToExpand.cost + self.distance(new_state, goal)
+                    queue.append(new_node)
+                    self.display_path(new_node.path, screen, nodeToExpand, obstacle_list)
+                else:
+                    continue
+        print "found nothing"
+        return None
     #Currently only supports 2 dimensions for simplicity
     #@param startnode
     #@param goal node
@@ -135,7 +165,7 @@ class Robot(physical_object.Physical_Object):
     #@param {int} resolution of grid
     #@param {Surface} screen to display paths on
     def plan(self, start, goal, obstacle_list, resolution, screen, algorithm):
-        path =  self.blind_search(start, goal, obstacle_list, resolution, screen, algorithm)
+        path =  self.a_star(start, goal, obstacle_list, resolution, screen, algorithm)
         return path
 
         
