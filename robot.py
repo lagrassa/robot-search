@@ -129,6 +129,9 @@ class Robot(physical_object.Physical_Object):
         cost = node.cost
         heuristic = self.distance(node.state, goal)
         return cost + heuristic
+    def heuristic(self, node, goal):
+        heuristic = self.distance(node.state, goal)
+        return  heuristic
 
     def distance(self, state1, state2):
         return ((state1[0]-state2[0])**2+(state1[1]-state2[1])**2)**0.5
@@ -140,7 +143,10 @@ class Robot(physical_object.Physical_Object):
         start_node.cost = 0
         queue = [start_node]        
         while len(queue) > 0:
-            queue = sorted(queue, key = lambda node: self.cost_plus_heuristic(node, goal))
+            if algorithm == "a star":
+                queue = sorted(queue, key = lambda node: self.cost_plus_heuristic(node, goal))
+            else:
+                queue = sorted(queue, key = lambda node: self.heuristic(node, goal))
             nodeToExpand = queue.pop(0)
             if (nodeToExpand.state == goal):
                 return nodeToExpand.path
