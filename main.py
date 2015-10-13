@@ -18,7 +18,7 @@ for i in range(len(block_vertices)):
 
 resolution = 10
 #Can be BFS or DFS for blind_search, and "hill climbing" or "a star" for cost_based_search
-algorithm = "hill climbing"
+algorithm = "a star"
 goal = (700,700)
 print "main start ", reference_point
 basic_game = environment.Environment(reference_point, goal, block_list, becky, resolution, algorithm)
