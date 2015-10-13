@@ -182,7 +182,8 @@ class Robot(physical_object.Physical_Object):
          time.sleep(0.000001)
 
     def in_bounds(self, new_state):
-        return new_state[0] < 400 and new_state[0] > 0 and new_state[1] < 400 and new_state[1] > 0
+        return True
+        #return new_state[0] < 400 and new_state[0] > 0 and new_state[1] < 400 and new_state[1] > 0
     #plans path to move. Robot thinks about how to move, and when it's ready to move, it will move. 
     #@param start {tuple}
     #@param goal {tuple}

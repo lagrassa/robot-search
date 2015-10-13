@@ -21,7 +21,7 @@ class Environment:
         self.robot = robot
         self.resolution = resolution
         pygame.init()
-        self.SIZE = [400,400]
+        self.SIZE = [1000,1000]
         self.screen = pygame.display.set_mode(self.SIZE)
         self.WHITE = (255,255,255)
         self.screen.fill(self.WHITE)
@@ -44,17 +44,19 @@ class Environment:
             time.sleep(0.05)
             #self.robot.display_path(movement_path, self.screen, self.obstacle_list)
             self.draw()
+            
 
         
         while True:
             self.draw()
-            self.clock.tick(10)
+            self.clock.tick(1)
 
     def draw(self):
         self.screen.fill(self.WHITE)
         self.robot.draw_parts(self.screen)
         for obstacle in self.obstacle_list:
             obstacle.draw_parts(self.screen)
+        pygame.display.flip()
 
 
 

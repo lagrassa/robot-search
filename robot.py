@@ -94,6 +94,7 @@ class Robot(physical_object.Physical_Object):
          screen.fill(WHITE)
 
     def in_bounds(self, new_state):
+        return True
         return new_state[0] < 400 and new_state[0] > 0 and new_state[1] < 400 and new_state[1] > 0
     #plans path to move. Robot thinks about how to move, and when it's ready to move, it will move. 
     #@param start {tuple}
@@ -106,7 +107,9 @@ class Robot(physical_object.Physical_Object):
         explored = {}
         start_node = search_lib.Node(start)
         queue = [start_node]        
+        clock = pygame.time.Clock()
         while len(queue) > 0:
+            clock.tick(0.05);
             nodeToExpand = queue.pop()
             if (nodeToExpand.state == goal):
                 return nodeToExpand.path
@@ -170,7 +173,11 @@ class Robot(physical_object.Physical_Object):
     #@param {int} resolution of grid
     #@param {Surface} screen to display paths on
     def plan(self, start, goal, obstacle_list, resolution, screen, algorithm):
-        path =  self.a_star(start, goal, obstacle_list, resolution, screen, algorithm)
+        if (algorithm == "a star" or algorithm == "hill climbing"):
+            path =  self.a_star(start, goal, obstacle_list, resolution, screen, algorithm)
+        else:
+            path =  self.blind_search(start, goal, obstacle_list, resolution, screen, algorithm)
+
         return path
 
         
