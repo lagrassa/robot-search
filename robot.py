@@ -45,8 +45,7 @@ class Robot(physical_object.Physical_Object):
         all_possible_states = [(x+d, y), (x-d, y), (x, y+d), (x, y-d)]
         safe_states = []
         for possible_state in all_possible_states:
-            #if not(self.collision_check(possible_state, obstacle_list)):
-            if not self.collision_check(possible_state, obstacle_list):
+            if not self.not_in_C(possible_state, obstacle_list):
                 safe_states.append(possible_state)
         return safe_states
 
@@ -72,7 +71,15 @@ class Robot(physical_object.Physical_Object):
 
     #Figures out whether or not there will be a collision from that state, then stores that in its memory
     #@param {Tuple} state 
-    def collision_check(self, state, obstacle_list):
+    def not_in_C(self, state, obstacle_list):
+        #Check for boundary
+        width = self.screen.get_size()[0]
+        height = self.screen.get_size()[1]
+        x = state[0]
+        y= state[1]
+        if (x < 0 or x > width or y < 0 or y > height):
+            return True 
+        #Check for collision with obstacle
         if state in self.collision_memory and False:
             willCollide =  self.collision_memory[state]
         else:
@@ -81,28 +88,25 @@ class Robot(physical_object.Physical_Object):
         return willCollide
         
     #displays path on screen
-    def display_path(self, path, screen, obstacle_list, previous_path = [(0,0), (0, 0.5)]):
+    def display_path(self, path, obstacle_list, previous_path = [(0,0), (0, 0.5)]):
          BLACK = (0, 0, 0) 
          WHITE = (255, 255, 255)
          closed = False
-         pygame.draw.lines(screen, BLACK, closed, path, 5)
-         self.draw_parts(screen)
+         pygame.draw.lines(self.screen, BLACK, closed, path, 5)
+         self.draw_parts(self.screen)
          for physical_object in self.obstacle_list:
-             physical_object.draw_parts(screen)
+             physical_object.draw_parts(self.screen)
          pygame.display.update()
          pygame.display.flip()
-         screen.fill(WHITE)
+         self.screen.fill(WHITE)
 
-    def in_bounds(self, new_state):
-        return True
-        return new_state[0] < 400 and new_state[0] > 0 and new_state[1] < 400 and new_state[1] > 0
     #plans path to move. Robot thinks about how to move, and when it's ready to move, it will move. 
     #@param start {tuple}
     #@param goal {tuple}
     #@param obstacle_list {list of Obstacle}
     #Draws the current paths in mind
     #returns a final path to the goal
-    def blind_search(self, start, goal, obstacle_list, resolution, screen, algorithm):
+    def blind_search(self, start, goal, obstacle_list, resolution, algorithm):
         self.obstacle_list  = obstacle_list #stored in robot's memory
         explored = {}
         start_node = search_lib.Node(start)
@@ -116,14 +120,14 @@ class Robot(physical_object.Physical_Object):
 
             new_state_list = self.successor(nodeToExpand, resolution, obstacle_list)
             for new_state in new_state_list:
-                if new_state not in explored and self.in_bounds(new_state):
+                if new_state not in explored:
                     explored[new_state] = True
                     new_node = search_lib.Node(new_state, nodeToExpand)
                     if (algorithm == "BFS"):
                         queue.insert(0,new_node)
                     elif (algorithm == "DFS"):
                         queue.append(new_node)
-                    self.display_path(new_node.path, screen, nodeToExpand, obstacle_list)
+                    self.display_path(new_node.path, nodeToExpand, obstacle_list)
                 else:
                     continue
         print "found nothing"
@@ -139,7 +143,7 @@ class Robot(physical_object.Physical_Object):
     def distance(self, state1, state2):
         return ((state1[0]-state2[0])**2+(state1[1]-state2[1])**2)**0.5
 
-    def a_star(self, start, goal, obstacle_list, resolution, screen, algorithm):
+    def a_star(self, start, goal, obstacle_list, resolution, algorithm):
         self.obstacle_list  = obstacle_list #stored in robot's memory
         explored = {}
         start_node = search_lib.Node(start)
@@ -156,12 +160,12 @@ class Robot(physical_object.Physical_Object):
             
             new_state_list = self.successor(nodeToExpand, resolution, obstacle_list)
             for new_state in new_state_list:
-                if new_state not in explored and self.in_bounds(new_state):
+                if new_state not in explored: 
                     explored[new_state] = True
                     new_node = search_lib.Node(new_state, nodeToExpand)
                     new_node.cost = nodeToExpand.cost + self.distance(new_state, goal)
                     queue.append(new_node)
-                    self.display_path(new_node.path, screen, nodeToExpand, obstacle_list)
+                    self.display_path(new_node.path,  nodeToExpand, obstacle_list)
                 else:
                     continue
         print "found nothing"
@@ -172,11 +176,11 @@ class Robot(physical_object.Physical_Object):
     #@param {Obstacle} obstacle_list
     #@param {int} resolution of grid
     #@param {Surface} screen to display paths on
-    def plan(self, start, goal, obstacle_list, resolution, screen, algorithm):
+    def plan(self, start, goal, obstacle_list, resolution,  algorithm):
         if (algorithm == "a star" or algorithm == "hill climbing"):
-            path =  self.a_star(start, goal, obstacle_list, resolution, screen, algorithm)
+            path =  self.a_star(start, goal, obstacle_list, resolution,  algorithm)
         else:
-            path =  self.blind_search(start, goal, obstacle_list, resolution, screen, algorithm)
+            path =  self.blind_search(start, goal, obstacle_list, resolution,  algorithm)
 
         return path
 

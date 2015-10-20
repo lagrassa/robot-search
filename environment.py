@@ -18,7 +18,6 @@ class Environment:
         self.start = start
         self.goal = goal
         self.obstacle_list = obstacle_list
-        self.robot = robot
         self.resolution = resolution
         pygame.init()
         self.SIZE = [1000,1000]
@@ -27,6 +26,8 @@ class Environment:
         self.screen.fill(self.WHITE)
         self.clock = pygame.time.Clock()
         self.algorithm = algorithm
+        self.robot = robot
+        self.robot.screen = self.screen
         self.robot.move_to_point(self.start)
         self.robot.current_state = self.start
         self.main()
@@ -34,7 +35,7 @@ class Environment:
     def main(self):
         self.draw()
         print "thinking"
-        movement_path = self.robot.plan(self.start, self.goal, self.obstacle_list, self.resolution, self.screen, self.algorithm)
+        movement_path = self.robot.plan(self.start, self.goal, self.obstacle_list, self.resolution, self.algorithm)
         for state in movement_path:
             assert(not(collision_test.will_collide(state, self.robot, self.obstacle_list)))
         for state in movement_path:
