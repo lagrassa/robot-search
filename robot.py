@@ -82,34 +82,40 @@ class Robot(physical_object.Physical_Object):
          pygame.display.flip()
          self.screen.fill(WHITE)
 
+    def get_nearest_point(self,tree_points, end_point):
+        nearest_point = min(tree_points, key = lambda x: self.heuristic(search_lib.Node(x), end_point))
+        return nearest_point
+
     def rrt(self, start, goal, obstacle_list, resolution):
+        self.obstacle_list = obstacle_list
         pathExists = False
-        start_tree = {} #Both of these will hold searchNodes
-        goal_tree = {} 
+        start_tree = {goal:search_lib.Node(goal)} #Both of these will hold search_lib.Nodes keyed on state
+        goal_tree = {start:search_lib.Node(start)} 
         n = 0
-        while(!pathExists):
+        while(not pathExists):
             #switch trees
             n = (n+1) % 2
             expanding_tree = [start_tree, goal_tree][n]
             searched_for_tree = [start_tree, goal_tree][n-1]
             max_x, max_y = self.screen.get_size()[0], self.screen.get_size()[1]
-            random_point = (random.randint(max_x), random.randint(max_y))
-            nearest_random_point = #findNearestPointOnTree
+            random_point = (random.randint(0,max_x), random.randint(0,max_y))
+            nearest_random_point = self.get_nearest_point(expanding_tree.keys(), random_point)
+            current_state = nearest_random_point
+            current_node = search_lib.Node(current_state)
             canExtend = True
             while (canExtend):
-                possible_states = all possible states
-                nearest_state = nearest point to goal
-                expanding_tree.add(nearest_state)
-                if nearest state in searched_for_tree:
+                possible_states = self.successor(current_node, resolution, obstacle_list)
+                nearest_state = self.get_nearest_point(possible_states, random_point)
+                assert (type(search_lib.Node((0,0)) == type(current_node)))
+                newNode = search_lib.Node(nearest_state, current_node)
+                self.display_path(newNode.path, newNode , obstacle_list)
+                expanding_tree[nearest_state] = newNode
+                if nearest_state in searched_for_tree:
                     pathExists = True
+                    print "found connection"
                     break;
 
             
-        #pick a random point for each tree
-        #extend until you reach that random point, or can't expand further
-            #keep adding next vertex until you can do no more
-        #once the trees intersect, take that path
-
     #plans path to move. Robot thinks about how to move, and when it's ready to move, it will move. 
     #@param start {tuple}
     #@param goal {tuple}
@@ -188,7 +194,9 @@ class Robot(physical_object.Physical_Object):
     #@param {int} resolution of grid
     #@param {Surface} screen to display paths on
     def plan(self, start, goal, obstacle_list, resolution,  algorithm):
-        if (algorithm == "a star" or algorithm == "hill climbing"):
+        if algorithm == "rrt":
+            self.rrt(start, goal, obstacle_list, resolution)
+        elif (algorithm == "a star" or algorithm == "hill climbing"):
             path =  self.a_star(start, goal, obstacle_list, resolution,  algorithm)
         else:
             path =  self.blind_search(start, goal, obstacle_list, resolution,  algorithm)
