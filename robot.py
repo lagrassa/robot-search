@@ -80,15 +80,14 @@ class Robot(physical_object.Physical_Object):
              physical_object.draw_parts(self.screen)
          pygame.display.update()
          pygame.display.flip()
-         self.screen.fill(WHITE)
+         #self.screen.fill(WHITE)
 
     #displays tree on screen
     def display_tree(self, tree1, tree2, obstacle_list, previous_path = [(0,0), (0, 0.5)]):
-         path1 = tree1.keys()
-         path2 = tree2.keys()
-         if len(path1) < 2 or len(path2) < 2:
+         if len(tree1.keys()) < 2 or len(tree2.keys()) < 2:
              return 
-         
+         for key in tree1.keys():
+             path = tree1[key].path
          BLACK = (0, 0, 0) 
          WHITE = (255, 255, 255)
          closed = False
@@ -135,7 +134,7 @@ class Robot(physical_object.Physical_Object):
                         possible_states.append(state)
                 nearest_state = self.get_nearest_point(possible_states, random_point)
                 newNode = search_lib.Node(nearest_state, current_node)
-                self.display_tree(expanding_tree, searched_for_tree, newNode , obstacle_list)
+                self.display_path(newNode.path, obstacle_list)
                 pygame.draw.circle(self.screen, (255,0,10), random_point, 10)
                 expanding_tree[nearest_state] = newNode
                 current_node = newNode
