@@ -82,6 +82,25 @@ class Robot(physical_object.Physical_Object):
          pygame.display.flip()
          self.screen.fill(WHITE)
 
+    #displays tree on screen
+    def display_tree(self, tree1, tree2, obstacle_list, previous_path = [(0,0), (0, 0.5)]):
+         path1 = tree1.keys()
+         path2 = tree2.keys()
+         if len(path1) < 2 or len(path2) < 2:
+             return 
+         
+         BLACK = (0, 0, 0) 
+         WHITE = (255, 255, 255)
+         closed = False
+         pygame.draw.lines(self.screen, BLACK, closed, path1, 5)
+         pygame.draw.lines(self.screen, BLACK, closed, path2, 5)
+         self.draw_parts(self.screen)
+         for physical_object in self.obstacle_list:
+             physical_object.draw_parts(self.screen)
+         pygame.display.update()
+         pygame.display.flip()
+         self.screen.fill(WHITE)
+
     def get_nearest_point(self,tree_points, end_point):
         nearest_point = min(tree_points, key = lambda x: self.heuristic(search_lib.Node(x), end_point))
         return nearest_point
@@ -104,7 +123,6 @@ class Robot(physical_object.Physical_Object):
             current_state = nearest_random_point
             current_node = search_lib.Node(current_state)
             canExtend = True
-            print "PICKED NEW RANDOM POINT"
             while (canExtend):
                 extended_set = {}
                 all_safe_states = self.successor(current_node, resolution, obstacle_list)
@@ -117,19 +135,17 @@ class Robot(physical_object.Physical_Object):
                         possible_states.append(state)
                 nearest_state = self.get_nearest_point(possible_states, random_point)
                 newNode = search_lib.Node(nearest_state, current_node)
-                self.display_path(newNode.path, newNode , obstacle_list)
-                pygame.draw.circle(self.screen, (50,50,50), random_point, 30)
+                self.display_tree(expanding_tree, searched_for_tree, newNode , obstacle_list)
+                pygame.draw.circle(self.screen, (255,0,10), random_point, 10)
                 expanding_tree[nearest_state] = newNode
                 current_node = newNode
                 
                 if len(possible_states) == 0 or current_node.state == nearest_state:
                     canExtend = False
                     extended_set = {}
-                    print "found end, starting over"
                     break;
                 if nearest_state in searched_for_tree:
                     pathExists = True
-                    print "found connection"
                     break;
 
             
