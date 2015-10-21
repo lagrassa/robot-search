@@ -2,6 +2,7 @@ import physical_object
 import search_lib
 import pygame
 import time
+import random
 import collision_test
 
 class Robot(physical_object.Physical_Object):
@@ -49,25 +50,6 @@ class Robot(physical_object.Physical_Object):
                 safe_states.append(possible_state)
         return safe_states
 
-    #@param {Obstacle} obstacle robot can collide with
-    #@returns {Boolean} true if the robot will collide with said obstacle at that point
-    def will_collide_with_obstacle(self, obstacle):
-        for body_part in self.polygon_list:
-            for obstacle_part in obstacle.polygon_list:
-                if self.parts_will_collide(body_part, obstacle_part):
-                    return True
-        return False
-    #Determines whether two parts share points
-    #@param {Polygon} body_part
-    #@param {Polygon} obstacle
-    #@returns{Boolean} 
-
-    def parts_will_collide(self, body_part, obstacle):
-        for vertex in body_part.all_vertices:
-            for other_vertex in obstacle.all_vertices:
-                if vertex == other_vertex:
-                    return True
-        return False
 
     #Figures out whether or not there will be a collision from that state, then stores that in its memory
     #@param {Tuple} state 
@@ -99,6 +81,34 @@ class Robot(physical_object.Physical_Object):
          pygame.display.update()
          pygame.display.flip()
          self.screen.fill(WHITE)
+
+    def rrt(self, start, goal, obstacle_list, resolution):
+        pathExists = False
+        start_tree = {} #Both of these will hold searchNodes
+        goal_tree = {} 
+        n = 0
+        while(!pathExists):
+            #switch trees
+            n = (n+1) % 2
+            expanding_tree = [start_tree, goal_tree][n]
+            searched_for_tree = [start_tree, goal_tree][n-1]
+            max_x, max_y = self.screen.get_size()[0], self.screen.get_size()[1]
+            random_point = (random.randint(max_x), random.randint(max_y))
+            nearest_random_point = #findNearestPointOnTree
+            canExtend = True
+            while (canExtend):
+                possible_states = all possible states
+                nearest_state = nearest point to goal
+                expanding_tree.add(nearest_state)
+                if nearest state in searched_for_tree:
+                    pathExists = True
+                    break;
+
+            
+        #pick a random point for each tree
+        #extend until you reach that random point, or can't expand further
+            #keep adding next vertex until you can do no more
+        #once the trees intersect, take that path
 
     #plans path to move. Robot thinks about how to move, and when it's ready to move, it will move. 
     #@param start {tuple}
@@ -136,6 +146,7 @@ class Robot(physical_object.Physical_Object):
         cost = node.cost
         heuristic = self.distance(node.state, goal)
         return cost + heuristic
+
     def heuristic(self, node, goal):
         heuristic = self.distance(node.state, goal)
         return  heuristic
