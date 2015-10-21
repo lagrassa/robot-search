@@ -99,18 +99,34 @@ class Robot(physical_object.Physical_Object):
             searched_for_tree = [start_tree, goal_tree][n-1]
             max_x, max_y = self.screen.get_size()[0], self.screen.get_size()[1]
             random_point = (random.randint(0,max_x), random.randint(0,max_y))
+            #draw random point on screen
             nearest_random_point = self.get_nearest_point(expanding_tree.keys(), random_point)
             current_state = nearest_random_point
             current_node = search_lib.Node(current_state)
             canExtend = True
+            print "PICKED NEW RANDOM POINT"
             while (canExtend):
-                possible_states = self.successor(current_node, resolution, obstacle_list)
+                extended_set = {}
+                all_safe_states = self.successor(current_node, resolution, obstacle_list)
+                possible_states = []
+                for state in all_safe_states:
+                    if state in extended_set.keys():
+                        continue
+                    else:
+                        extended_set[state] = True
+                        possible_states.append(state)
                 nearest_state = self.get_nearest_point(possible_states, random_point)
                 newNode = search_lib.Node(nearest_state, current_node)
                 self.display_path(newNode.path, newNode , obstacle_list)
+                pygame.draw.circle(self.screen, (50,50,50), random_point, 30)
                 expanding_tree[nearest_state] = newNode
                 current_node = newNode
                 
+                if len(possible_states) == 0 or current_node.state == nearest_state:
+                    canExtend = False
+                    extended_set = {}
+                    print "found end, starting over"
+                    break;
                 if nearest_state in searched_for_tree:
                     pathExists = True
                     print "found connection"
