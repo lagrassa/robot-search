@@ -106,10 +106,11 @@ class Robot(physical_object.Physical_Object):
             while (canExtend):
                 possible_states = self.successor(current_node, resolution, obstacle_list)
                 nearest_state = self.get_nearest_point(possible_states, random_point)
-                assert (type(search_lib.Node((0,0)) == type(current_node)))
                 newNode = search_lib.Node(nearest_state, current_node)
                 self.display_path(newNode.path, newNode , obstacle_list)
                 expanding_tree[nearest_state] = newNode
+                current_node = newNode
+                
                 if nearest_state in searched_for_tree:
                     pathExists = True
                     print "found connection"
