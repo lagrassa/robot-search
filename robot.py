@@ -135,7 +135,7 @@ class Robot(physical_object.Physical_Object):
                 nearest_state = self.get_nearest_point(possible_states, random_point)
                 newNode = search_lib.Node(nearest_state, current_node)
                 self.display_path(newNode.path, obstacle_list)
-                pygame.draw.circle(self.screen, (255,0,10), random_point, 10)
+                #pygame.draw.circle(self.screen, (255,0,10), random_point, 10)
                 expanding_tree[nearest_state] = newNode
                 current_node = newNode
                 
