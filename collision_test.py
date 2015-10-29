@@ -179,7 +179,6 @@ class Robot(physical_object.Physical_Object):
          pygame.display.update()
          pygame.display.flip()
          screen.fill(WHITE)
-         time.sleep(0.000001)
 
     def in_bounds(self, new_state):
         return True
