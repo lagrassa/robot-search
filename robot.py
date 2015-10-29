@@ -14,25 +14,26 @@ class Robot(physical_object.Physical_Object):
     #moves the robot part to a new location
     #@param {Polygon} part - part of the robot that's moving
     #@param {tuple}movement_vector - list of changes in position, of form (deltaX, deltaY, deltaZ.......)
-    def move_part(self, part, movement_vector):
-        new_vertex_locations = []
-        for vertex in part.all_vertices:
-            vertex = (vertex[0]+movement_vector[0], vertex[1]+movement_vector[1])
+    def move_part(self, part, movement_vector, update_position = True):
+        new_vertex_locations = [(vertex[0]+movement_vector[0], vertex[1]+movement_vector[1]) for vertex in part.all_vertices]
+        #for vertex in part.all_vertices:
+        #    vertex = (vertex[0]+movement_vector[0], vertex[1]+movement_vector[1])
             #vertex = tuple([vertex[dimension] + movement_vector[dimension] for dimension in range(len(movement_vector))])
-            new_vertex_locations.append(vertex)
-        part.all_vertices = new_vertex_locations
+       #     new_vertex_locations.append(vertex)
+        if update_position:
+            part.all_vertices = new_vertex_locations
         return part
 
     # moves entire robot, part by part to a new location
     #@param {tuple}movement_vector - list of changes in position, of form (deltaX, deltaY, deltaZ.......)
-    def move(self, movement_vector):
+    def move(self, movement_vector, update_position = True):
         for body_part in self.polygon_list:
-            self.body_part = self.move_part(body_part, movement_vector)
+            self.body_part = self.move_part(body_part, movement_vector, update_position)
 
-    def move_to_point(self, point):
+    def move_to_point(self, point, update_position = True):
         deltaX = point[0]-self.current_location[0]
         deltaY = point[1]-self.current_location[1]
-        self.move([deltaX, deltaY])
+        self.move([deltaX, deltaY], update_position)
 
     #finds all possible places robot can move to 
     #@param {Node}nodeToExpand
@@ -79,7 +80,6 @@ class Robot(physical_object.Physical_Object):
          for physical_object in self.obstacle_list:
              physical_object.draw_parts(self.screen)
          pygame.display.update()
-         pygame.display.flip()
          #self.screen.fill(WHITE)
 
     #displays tree on screen
@@ -149,7 +149,6 @@ class Robot(physical_object.Physical_Object):
                 expanding_tree[current_node.state] = current_node
                 expanding_tree[nearest_state] = newNode
 
-                assert(type(nearest_state)==type((1,1)))
                 current_node = newNode
                 
                 if len(possible_states) == 0 or current_node.state == nearest_state:

@@ -2,10 +2,10 @@ import copy
 import physical_object
 import obstacle
 def will_collide(state,robot, obstacle_list):
-    robot_copy =  copy.deepcopy(robot)
-    #robot_copy = robot
+    #robot_copy =  copy.copy(robot)
+    robot_copy = robot
     #based on state, update copy of robot's position
-    robot_copy.move_to_point(state)
+    robot_copy.move_to_point(state, False)
     for obstacle in obstacle_list:
         for obstacle_polygon in obstacle.polygon_list:
             for robot_copy_polygon in robot_copy.polygon_list:
@@ -183,7 +183,6 @@ class Robot(physical_object.Physical_Object):
          for physical_object in self.obstacle_list:
              physical_object.draw_parts(screen)
          pygame.display.update()
-         pygame.display.flip()
          screen.fill(WHITE)
 
     def in_bounds(self, new_state):
