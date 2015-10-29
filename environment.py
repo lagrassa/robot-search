@@ -35,6 +35,7 @@ class Environment:
     def main(self):
         self.draw()
         movement_path = self.robot.plan(self.start, self.goal, self.obstacle_list, self.resolution, self.algorithm)
+        print movement_path
         for state in movement_path:
             movement_vector = [state[0]-self.robot.current_state[0], state[1]-self.robot.current_state[1]]
             self.robot.move(movement_vector)
@@ -44,9 +45,6 @@ class Environment:
             time.sleep(0.01)
             
 
-        while True:
-            self.draw()
-            self.clock.tick(1)
         
 
     def draw(self):

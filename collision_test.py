@@ -1,5 +1,4 @@
 import copy
-import numpy
 import physical_object
 import obstacle
 def will_collide(state,robot, obstacle_list):
@@ -77,6 +76,10 @@ def get_min_max(polygon, axis):
     #print "max", maximum
     return Projection_Extremes(minimum, maximum)
 
+def norm(vector):
+    lengths_square = [dimension**2 for dimension in vector]
+    return sum(lengths_square)**0.5
+
 
 def get_normals(polygon):
     normals = []
@@ -87,7 +90,7 @@ def get_normals(polygon):
         normal_vector =(-1*side_vector[1], side_vector[0])
 
         #normalizes
-        normal_length = numpy.linalg.norm(normal_vector)
+        normal_length = norm(normal_vector)
         normal_vector = [dim/normal_length for dim in normal_vector]
         normals.append(normal_vector)
 

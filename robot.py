@@ -171,13 +171,11 @@ class Robot(physical_object.Physical_Object):
                 pathToStart.append(node.parent.state)
                 node = node.parent
             pathToStart.reverse()
-            pathToGoal.append(endState)
             node = endNode
             while(node.child != None and node.child.state != goal):
                 pathToGoal.append(node.child.state)
                 node = node.child
-            for state in pathToStart+pathToGoal:
-                assert(not(state is None)) 
+
             if switch:
                 pathToStart, pathToGoal = pathToGoal, pathToStart
             return pathToStart + pathToGoal
