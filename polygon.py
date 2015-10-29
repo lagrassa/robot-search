@@ -14,7 +14,7 @@ class Polygon:
         relative_vertex_list = [self.reference_vertex]
         for other_vertex in self.other_vertices:
             # list comprehension to allow multi dimensional reference points
-            relative_vertex = [other_vertex[dimension]+self.reference_vertex[dimension] for dimension in range(len(self.reference_vertex))]
+            relative_vertex = [other_vertex[dimension]+self.reference_vertex[dimension] for dimension in xrange(len(self.reference_vertex))]
             relative_vertex_list.append(relative_vertex)
         relative_vertex_tuple = tuple(relative_vertex_list) # for performance
         return relative_vertex_tuple
