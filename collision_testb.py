@@ -1,10 +1,9 @@
+import numpy
 import copy
 import physical_object
 import obstacle
-import numpy
 def will_collide(state,robot, obstacle_list):
     robot_copy =  copy.deepcopy(robot)
-    #robot_copy = robot
     #based on state, update copy of robot's position
     robot_copy.move_to_point(state)
     for obstacle in obstacle_list:
@@ -45,17 +44,15 @@ def polygons_separate(robot_polygon,  obstacle_polygon):
 
     return False
     
-def dot(a, b):
-    return sum( [a[i]*b[i] for i in xrange(len(b))] )
-        
+
 def axes_separate(projection1, projection2, axis):
-    if abs(dot(projection1.max_proj, axis)) < abs(dot(projection2.min_proj, axis)):#something is wrong here. This is not true in the test case
+    if abs(numpy.dot(projection1.max_proj, axis)) < abs(numpy.dot(projection2.min_proj, axis)):#something is wrong here. This is not true in the test case
         #print "min projection of square", projection2.min_proj
         #print "max projection of triangle", projection1.max_proj
         #print "case 1"
         #print axis
         return True
-    elif abs(dot(projection2.max_proj, axis)) < abs(dot(projection1.min_proj, axis)):
+    elif abs(numpy.dot(projection2.max_proj, axis)) < abs(numpy.dot(projection1.min_proj, axis)):
         #print "case 2"
         return True
     return False
@@ -64,34 +61,30 @@ def axes_separate(projection1, projection2, axis):
 def get_min_max(polygon, axis):
     projections = []
     origin = (0,0) 
-    for i in xrange(0,len(polygon.all_vertices)):
+    for i in range(0,len(polygon.all_vertices)):
         point_to = polygon.all_vertices[i]
         edge = (point_to[0]-origin[0], point_to[1]-origin[1])
-        projection_scalar = (1.0*dot(axis,edge)/dot(axis,axis))
+        projection_scalar = (1.0*numpy.dot(axis,edge)/numpy.dot(axis,axis))
         projection = (projection_scalar * axis[0], projection_scalar * axis[1])
         projections.append(projection)
         #print projection
-    minimum = min(projections, key = lambda p: abs(dot(p, axis)))
-    maximum = max(projections, key = lambda p: abs(dot(p, axis)))
+    minimum = min(projections, key = lambda p: abs(numpy.dot(p, axis)))
+    maximum = max(projections, key = lambda p: abs(numpy.dot(p, axis)))
     #print "min", minimum
     #print "max", maximum
     return Projection_Extremes(minimum, maximum)
 
-def norm(vector):
-    lengths_square = [dimension**2 for dimension in vector]
-    return sum(lengths_square)**0.5
-
 
 def get_normals(polygon):
     normals = []
-    for i in xrange(0,len(polygon.all_vertices)):
+    for i in range(0,len(polygon.all_vertices)):
         first_point = polygon.all_vertices[i-1]
         pointing_at = polygon.all_vertices[i]
         side_vector = (pointing_at[0]-first_point[0], pointing_at[1]-first_point[1])
         normal_vector =(-1*side_vector[1], side_vector[0])
 
         #normalizes
-        normal_length = norm(normal_vector)
+        normal_length = numpy.linalg.norm(normal_vector)
         normal_vector = [dim/normal_length for dim in normal_vector]
         normals.append(normal_vector)
 
@@ -110,7 +103,7 @@ class Robot(physical_object.Physical_Object):
         new_vertex_locations = []
         for vertex in part.all_vertices:
             vertex = (vertex[0]+movement_vector[0], vertex[1]+movement_vector[1])
-            #vertex = tuple([vertex[dimension] + movement_vector[dimension] for dimension in xrange(len(movement_vector))])
+            #vertex = tuple([vertex[dimension] + movement_vector[dimension] for dimension in range(len(movement_vector))])
             new_vertex_locations.append(vertex)
         part.all_vertices = new_vertex_locations
         return part
@@ -184,6 +177,7 @@ class Robot(physical_object.Physical_Object):
          for physical_object in self.obstacle_list:
              physical_object.draw_parts(screen)
          pygame.display.update()
+         pygame.display.flip()
          screen.fill(WHITE)
 
     def in_bounds(self, new_state):
@@ -247,7 +241,7 @@ class Polygon:
         relative_vertex_list = [self.reference_vertex]
         for other_vertex in self.other_vertices:
             # list comprehension to allow multi dimensional reference points
-            relative_vertex = [other_vertex[dimension]+self.reference_vertex[dimension] for dimension in xrange(len(self.reference_vertex))]
+            relative_vertex = [other_vertex[dimension]+self.reference_vertex[dimension] for dimension in range(len(self.reference_vertex))]
             relative_vertex_list.append(relative_vertex)
         relative_vertex_tuple = tuple(relative_vertex_list) # for performance
         return relative_vertex_tuple
@@ -284,3 +278,4 @@ print will_collide((230,230), becky, [block])
 while True:
     clock.tick(5)
 '''
+

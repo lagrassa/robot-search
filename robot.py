@@ -163,13 +163,12 @@ class Robot(physical_object.Physical_Object):
                 switch = False
             else:
                 switch = True
-
+            print "SWITCHED ORDER", switch
             node = endNode
             pathToStart.append(node.state)
             while (node.parent is not None):
                 pathToStart.append(node.parent.state)
                 node = node.parent
-            pathToStart.reverse()
             node = endNode
             while(node.child != None and node.child.state != goal):
                 pathToGoal.append(node.child.state)
@@ -177,7 +176,9 @@ class Robot(physical_object.Physical_Object):
 
             if switch:
                 pathToStart, pathToGoal = pathToGoal, pathToStart
-            return pathToStart + pathToGoal
+            path = pathToStart+pathToGoal
+            path.reverse()
+            return path
                 
 
             
@@ -211,7 +212,6 @@ class Robot(physical_object.Physical_Object):
                     self.display_path(new_node.path, nodeToExpand, obstacle_list)
                 else:
                     continue
-        print "found nothing"
         return None
     def cost_plus_heuristic(self, node, goal):
         cost = node.cost

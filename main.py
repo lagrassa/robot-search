@@ -4,7 +4,7 @@ import pygame
 import environment
 def main():
     other_vertex_list = [(0,50), (50,50), (50,0)]
-    reference_point = (50,50)
+    reference_point = (300,300)
     becky_bot = becky.create_becky(reference_point)
     block_vertices = [(200,700), (500,500), (600, 400), (320,80)]
     color_list = [(0,0,255),(255,0,0),(0,255,0),(50,70,70),(80,90,50)]
