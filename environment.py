@@ -42,7 +42,6 @@ class Environment:
             movement_vector = [state[0]-self.robot.current_state[0], state[1]-self.robot.current_state[1]]
             self.robot.move(movement_vector)
             self.robot.current_state = state
-            time.sleep(0.05)
             #self.robot.display_path(movement_path, self.screen, self.obstacle_list)
             self.draw()
             

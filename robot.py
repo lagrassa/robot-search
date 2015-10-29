@@ -120,6 +120,11 @@ class Robot(physical_object.Physical_Object):
             #draw random point on screen
             nearest_random_point = self.get_nearest_point(expanding_tree.keys(), random_point)
             current_state = nearest_random_point
+            if current_state in searched_for_tree:
+                pathExists = True
+                endState = current_state
+                endNode = expanding_tree[endState]
+                break;
             current_node = search_lib.Node(current_state)
             canExtend = True
             while (canExtend):
@@ -134,8 +139,8 @@ class Robot(physical_object.Physical_Object):
                         possible_states.append(state)
                 nearest_state = self.get_nearest_point(possible_states, random_point)
                 newNode = search_lib.Node(nearest_state, current_node)
+                current_node.child = newNode
                 self.display_path(newNode.path, obstacle_list)
-                #pygame.draw.circle(self.screen, (255,0,10), random_point, 10)
                 expanding_tree[nearest_state] = newNode
                 current_node = newNode
                 
@@ -143,9 +148,35 @@ class Robot(physical_object.Physical_Object):
                     canExtend = False
                     extended_set = {}
                     break;
-                if nearest_state in searched_for_tree:
-                    pathExists = True
-                    break;
+        print "RRT FINISHED"
+        if pathExists:
+            pathToStart = []
+            pathToGoal = []
+            if searched_for_tree == goal_tree:
+                switch = False
+            else:
+                switch = True
+
+            node = endNode
+            pathToStart.append(node)
+            while (node.parent is not None):
+                pathToStart.append(node.parent)
+                node = node.parent
+            pathToStart.reverse()
+            pathToGoal.append(endState)
+            node = endNode
+            while(node.child != None and node.child.state != goal):
+                print "second loop"
+                pathToGoal.append(node.child)
+                node = node.child
+            print "path to goal", pathToGoal
+            print "pathToStart", pathToStart
+            
+            if switch:
+                pathToStart, pathToGoal = pathToGoal, pathToStart
+
+                return pathToStart + pathToGoal
+                
 
             
     #plans path to move. Robot thinks about how to move, and when it's ready to move, it will move. 
@@ -227,7 +258,7 @@ class Robot(physical_object.Physical_Object):
     #@param {Surface} screen to display paths on
     def plan(self, start, goal, obstacle_list, resolution,  algorithm):
         if algorithm == "rrt":
-            self.rrt(start, goal, obstacle_list, resolution)
+            path = self.rrt(start, goal, obstacle_list, resolution)
         elif (algorithm == "a star" or algorithm == "hill climbing"):
             path =  self.a_star(start, goal, obstacle_list, resolution,  algorithm)
         else:
