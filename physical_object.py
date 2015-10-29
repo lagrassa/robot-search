@@ -18,8 +18,6 @@ class Physical_Object:
     def draw_parts(self, screen):
         for polygon in self.polygon_list:
             polygon.draw(screen)
-        #pygame.display.update()
-        #pygame.display.flip()        
 
 
 

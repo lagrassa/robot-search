@@ -34,22 +34,20 @@ class Environment:
 
     def main(self):
         self.draw()
-        print "thinking"
         movement_path = self.robot.plan(self.start, self.goal, self.obstacle_list, self.resolution, self.algorithm)
-        for state in movement_path:
-            assert(not(collision_test.will_collide(state, self.robot, self.obstacle_list)))
         for state in movement_path:
             movement_vector = [state[0]-self.robot.current_state[0], state[1]-self.robot.current_state[1]]
             self.robot.move(movement_vector)
             self.robot.current_state = state
             #self.robot.display_path(movement_path, self.screen, self.obstacle_list)
             self.draw()
+            time.sleep(0.01)
             
 
-        
         while True:
             self.draw()
             self.clock.tick(1)
+        
 
     def draw(self):
         self.screen.fill(self.WHITE)
@@ -57,6 +55,7 @@ class Environment:
         for obstacle in self.obstacle_list:
             obstacle.draw_parts(self.screen)
         pygame.display.flip()
+        pygame.display.update()
 
 
 

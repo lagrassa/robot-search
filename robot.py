@@ -110,7 +110,10 @@ class Robot(physical_object.Physical_Object):
         start_tree = {goal:search_lib.Node(goal)} #Both of these will hold search_lib.Nodes keyed on state
         goal_tree = {start:search_lib.Node(start)} 
         n = 0
+ 
         while(not pathExists):
+            entries = [ "Key:   "+ str(entry) + "Value:    " + str(start_tree[entry]) for entry in start_tree.keys()]
+            #print entries
             #switch trees
             n = (n+1) % 2
             expanding_tree = [start_tree, goal_tree][n]
@@ -125,7 +128,8 @@ class Robot(physical_object.Physical_Object):
                 endState = current_state
                 endNode = expanding_tree[endState]
                 break;
-            current_node = search_lib.Node(current_state)
+            #current_node = search_lib.Node(current_state)
+            current_node = expanding_tree[current_state]
             canExtend = True
             while (canExtend):
                 extended_set = {}
@@ -141,7 +145,11 @@ class Robot(physical_object.Physical_Object):
                 newNode = search_lib.Node(nearest_state, current_node)
                 current_node.child = newNode
                 self.display_path(newNode.path, obstacle_list)
+
+                expanding_tree[current_node.state] = current_node
                 expanding_tree[nearest_state] = newNode
+
+                assert(type(nearest_state)==type((1,1)))
                 current_node = newNode
                 
                 if len(possible_states) == 0 or current_node.state == nearest_state:
@@ -158,24 +166,21 @@ class Robot(physical_object.Physical_Object):
                 switch = True
 
             node = endNode
-            pathToStart.append(node)
+            pathToStart.append(node.state)
             while (node.parent is not None):
-                pathToStart.append(node.parent)
+                pathToStart.append(node.parent.state)
                 node = node.parent
             pathToStart.reverse()
             pathToGoal.append(endState)
             node = endNode
             while(node.child != None and node.child.state != goal):
-                print "second loop"
-                pathToGoal.append(node.child)
+                pathToGoal.append(node.child.state)
                 node = node.child
-            print "path to goal", pathToGoal
-            print "pathToStart", pathToStart
-            
+            for state in pathToStart+pathToGoal:
+                assert(not(state is None)) 
             if switch:
                 pathToStart, pathToGoal = pathToGoal, pathToStart
-
-                return pathToStart + pathToGoal
+            return pathToStart + pathToGoal
                 
 
             
