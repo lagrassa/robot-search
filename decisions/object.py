@@ -7,12 +7,16 @@ class Object:
         self.location = None
     def __str__(self):
         return str(self.feature_vector)
+    def __repr__(self):
+        return str(self.feature_vector)
 
 class FeatureVector:
     def __init__(self, color, name):
         self.color = color
         self.name = name
     def __str__(self):
+        return str(self.color) + " " + str(self.name)
+    def __repr__(self):
         return str(self.color) + " " + str(self.name)
 
 #returns a list of the objects with their givenness
@@ -45,10 +49,6 @@ green_ball = make_object("that green ball")
 red_ball = make_object("that red ball")
 orange_carrot = make_object("that orange carrot")
 
-priors = {1:{green_ball: 0.6, red_ball:0.3, orange_carrot:0.1}, 2:{green_ball: 0.3, red_ball:0.6, orange_carrot:0.1}, 3:{green_ball: 0.1, red_ball:0.1, orange_carrot:0.9}}
-
-activated = [green_ball, orange_carrot]
-LTM =  [green_ball, orange_carrot, red_ball]
 
 #To parse the statement, the modifier should have the following effects:
 #If the object has the modifier "this", then the object is in working memory (activated). Then, your given is that it is modified. Then, for state in distribution, find P(state)=object |object in activated 
@@ -75,6 +75,7 @@ def distribution_given_set(distribution, narrowing_set):
 def most_probable_state(distribution):
     most_probable_state = max(distribution, key = lambda x: distribution[x])
     return most_probable_state
+
     
 
 def most_probable_object_given_sentence(sentence, activated, LTM, prior):
@@ -91,26 +92,52 @@ def most_probable_object_given_sentence(sentence, activated, LTM, prior):
     for obj in set_to_search:
         if obj.feature_vector.color == modifier:
             modifier_set.append(obj) 
-    distribution = distribution_given_set(distribution, modifier_set)
+    set_to_search  = modifier_set
+    #distribution = distribution_given_set(distribution, modifier_set)
     #and object 
     subject_set = []
     for obj in set_to_search:
         if obj.feature_vector.name == subject:
             subject_set.append(obj) 
-    #and returns the object with the highest probability of being that.
+
+    set_to_search = subject_set
+    #set to search is all the objects the sentence could be referring to. 
+    
+
+    p_object_num_is_object_distribution = {}
+
+    for obj in set_to_search:
+        p_object_distribution_given_object = p_element_is_value_given_value(prior, value)
+        p_object_is_referred_to = 1.0/len(set_to_search) #TODO uniform probability
+
+        for object_num in prior:
+            p_object_is_referred_to = p_object_distribution_given_object / p_object_is_referred_to
+            if object_num in p_object_num_is_object_distribution:
+                p_object_num_is_object_distribution[object_num] = p_object_num_is_object_distribution[object_num] + p_object_is_referred_to
+            else:
+                p_object_num_is_object_distribution[object_num] = p_object_is_referred_to
+
+
+    #and returns the object with the highest p of being that.
     max_prob = 0
     object_number = None
-    for objectNum in distribution:
-        most_probable_object_of_objectNum = most_probable_state(distribution[objectNum])
-        prob_of_object = distribution[objectNum][most_probable_object_of_objectNum]
+
+    for objectNum in p_object_num_is_object_distribution:
+        prob_of_object = p_object_num_is_object_distribution[objectNum]
         if prob_of_object > max_prob:
             object_number = objectNum
             max_prob = prob_of_object
+
     return object_number 
        
    
    #narrows down based on type
    
-sentence = "that green ball" 
+sentence = "that orange carrot" 
+#Situation: Object 1 is probably a green ball, object 2 is probably a red ball, object 3 is almost certaintly an orange carrot
+priors = {1:{green_ball: 0.6, red_ball:0.3, orange_carrot:0.1}, 2:{green_ball: 0.3, red_ball:0.6, orange_carrot:0.1}, 3:{green_ball: 0.1, red_ball:0.1, orange_carrot:0.9}}
+
 prior = priors
+activated = [green_ball, orange_carrot]
+LTM =  [green_ball, orange_carrot, red_ball]
 print most_probable_object_given_sentence(sentence, activated, LTM, prior)
