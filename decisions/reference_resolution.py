@@ -5,28 +5,27 @@ import prob_lib
 #Problem: Given a statement and a distribution over possibile states, return
 #1. A question asking for the most useful information
 #2. The most likely object
-#In this scenario, object #1 is a green ball, object #2 is a red ball, object #3 is an orange carrot
+#In this scenario, object #1 is a green ball, object #2 is a red ball, object #3 is an orange cheese
 #Based on the robots sensing capabilities, it has determined that 1 
 green_ball = object_lib.make_object("that green ball")
 red_ball = object_lib.make_object("that red ball")
-orange_carrot = object_lib.make_object("that orange carrot")
+orange_cheese = object_lib.make_object("that orange cheese")
 
 
 
 #Finds P(R=o | U = u) = P(U=u | R = o) * P(R = o)
 #for all objects, for all u
-def prob_object_is_referred_to(object_list, sentence):
-    feature_list = object_lib.tokenize(sentence)
-    p_r_is_o_dist = {green_ball: 0.333, red_ball: 0.333, orange_carrot:0.333}
-    p_mod_is_m_given_o = {red_ball:{'red':0.95, 'green':0.025, 'orange':0.025}, green_ball:{'red':0.025, 'green':0.95, 'orange':0.025}, orange_carrot:{'red':0.05, 'green':0.05, 'orange':0.9}} 
-    p_det_is_d_given_o = {red_ball:{'this':0.01, 'that':0.99}, green_ball:{'this':0.99, 'that':0.01}, orange_carrot:{'this':0.90, 'that':0.10}}
-    p_name_is_n_given_o = {red_ball:{'ball':0.90, 'carrot':0.10}, green_ball:{'ball':0.90, 'carrot':0.10}, orange_carrot:{'ball':0.05, 'carrot':0.95}}
+def prob_object_is_referred_to(object_list, pos_tagged_list):
+    p_r_is_o_dist = {green_ball: 0.333, red_ball: 0.333, orange_cheese:0.333}
+    p_mod_is_m_given_o = {red_ball:{'red':0.95, 'green':0.025, 'orange':0.025}, green_ball:{'red':0.025, 'green':0.95, 'orange':0.025}, orange_cheese:{'red':0.05, 'green':0.05, 'orange':0.9}} 
+    p_det_is_d_given_o = {red_ball:{'this':0.01, 'that':0.99}, green_ball:{'this':0.99, 'that':0.01}, orange_cheese:{'this':0.90, 'that':0.10}}
+    p_name_is_n_given_o = {red_ball:{'ball':0.90, 'cheese':0.10}, green_ball:{'ball':0.90, 'cheese':0.10}, orange_cheese:{'ball':0.05, 'cheese':0.95}}
     distribution_list = [p_det_is_d_given_o, p_mod_is_m_given_o, p_name_is_n_given_o]
-    current_prob_given_sentence = prob_lib.bayes_rule_given_u(object_list, distribution_list, feature_list)
+    current_prob_given_sentence = prob_lib.bayes_rule_given_u(object_list, distribution_list, pos_tagged_list)
     return current_prob_given_sentence
 
         
-def most_probable_object_given_sentence(p_r_is_o_given_u_dist, sentence, set_to_search, prior):
+def most_probable_object_given_sentence(p_r_is_o_given_u_dist, pos_tagged_list, set_to_search, prior):
     distribution = prior
     p_n_is_r_dist = {1:0, 2:0, 3:0}
     #This is the P(object num = referred_object)
@@ -48,27 +47,36 @@ def most_probable_object_given_sentence(p_r_is_o_given_u_dist, sentence, set_to_
     object_number = prob_lib.most_probable_state(p_n_is_r_dist)
     return object_number 
        
-   
-#Situation: Object 1 is probably a green ball, object 2 is probably a red ball, object 3 is almost certaintly an orange carrot
+def get_determiner(pos_tagged_list):
+    determiner = None
+    for term in pos_tagged_list:
+        tag = term[1]
+        if tag == 'DT':
+            determiner = term[0]
+    return determiner   
+#Situation: Object 1 is probably a green ball, object 2 is probably a red ball, object 3 is almost certaintly an orange cheese
 priors = {1:{'green': 0.7,'red':0.2, 'orange':0.1},2:{'green': 0.2,'red':0.7, 'orange':0.1}, 3:{'green': 0.1,'red':0.1, 'orange':0.8}}
 
 belief = priors
 activated = []
 in_focus = None
-LTM =  [green_ball, orange_carrot, red_ball]
+LTM =  [green_ball, orange_cheese, red_ball]
 while True:
     sentence = raw_input("Ask for object of form determiner- modifier - object. Type exit to escape \n");
 
     if (sentence == "exit"):
         break
-    determiner = object_lib.tokenize(sentence)[0]
+
+    pos_tagged_list = object_lib.tokenize(sentence)
+    determiner = get_determiner(pos_tagged_list)
+
     if (determiner == "it"):
         referred_object = in_focus
         referred_unknown = prob_lib.most_probable_state_given_o(referred_object, belief) 
     else:
         set_to_search = LTM
-        p_r_is_o_given_u_dist = prob_object_is_referred_to(set_to_search, sentence)
-        referred_unknown =  most_probable_object_given_sentence(p_r_is_o_given_u_dist, sentence, set_to_search, belief)
+        p_r_is_o_given_u_dist = prob_object_is_referred_to(set_to_search, pos_tagged_list)
+        referred_unknown =  most_probable_object_given_sentence(p_r_is_o_given_u_dist, pos_tagged_list, set_to_search, belief)
 
         referred_object = prob_lib.most_probable_state(p_r_is_o_given_u_dist)
 

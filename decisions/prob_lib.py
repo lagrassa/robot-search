@@ -9,7 +9,6 @@ def assert_sums_to_one(distribution):
 def most_probable_state(distribution):
     most_probable_state = max(distribution, key = lambda x: distribution[x])
     assert(type(most_probable_state) != type({}))
-    print "most probable ", most_probable_state
     return most_probable_state
 
 def most_probable_state_given_o(u,distribution):
@@ -32,13 +31,15 @@ def compute_p_r_is_o_given_u(u,object_list,p_u_is_u_given_r_is_o, p_r_is_o_dist)
     p_r_is_o_given_u = {}
     total_prob = 0.0
     for obj in object_list:
-        p_r_is_o_given_u[obj] =  p_u_is_u_given_r_is_o[obj][u]*p_r_is_o_dist[obj]
+        p_r_is_o = p_r_is_o_dist[obj]
+        p_u_is_u_for_this_o = p_u_is_u_given_r_is_o[obj]
+        print p_u_is_u_for_this_o
+        p_r_is_o_given_u[obj] =  p_u_is_u_for_this_o[u]*p_r_is_o
         total_prob += p_r_is_o_given_u[obj]
     for o in p_r_is_o_given_u.keys():
         new_prob = p_r_is_o_given_u[o]/total_prob
         p_r_is_o_given_u[o] = new_prob
     assert_sums_to_one(p_r_is_o_given_u)
-    print p_r_is_o_given_u, u
     return p_r_is_o_given_u
 
 def initialize_zero_distribution(object_list):
@@ -54,7 +55,8 @@ def uniform_distribution(object_list):
         uniform_dist[o] = equal_probability 
     return uniform_dist
 
-def bayes_rule_given_u(object_list, distribution_list, feature_list):
+def bayes_rule_given_u(object_list, distribution_list, pos_tag_list):
+    feature_list = [i[0] for i in pos_tag_list]
     current_prob_given_sentence = initialize_zero_distribution(object_list)
     weight = 1.0/len(distribution_list)
     i = 0

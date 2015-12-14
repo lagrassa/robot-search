@@ -1,4 +1,5 @@
-#import nltk as nl
+from  nltk import pos_tag
+
 
 class Object:
     def __init__(self, givenness, feature_vector):
@@ -21,13 +22,16 @@ class FeatureVector:
 #returns a list of the objects with their givenness
 def make_object(sentence):
     token =  tokenize(sentence)
-    determiner = token[0]
-    modifier = token[1]
-    subject = token[2]
+    determiner = token[0][0]
+    modifier = token[1][0]
+    subject = token[2][0]
     color = FeatureVector(modifier, subject)
-    return Object(determiner, color)
+    obj = Object(determiner, color)
+    print "OBJECT", obj
+    return obj
 
 def tokenize(sentence):
     word_list = sentence.split()
-    return word_list
+    tagged_list = pos_tag(word_list)
+    return tagged_list
 
