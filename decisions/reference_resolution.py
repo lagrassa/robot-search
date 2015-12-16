@@ -1,4 +1,5 @@
 import object_lib
+import reference_resolution_lib
 import prob_lib
 #grammar: "modifier, space, color, object"
 #print make_object("that green ball");
@@ -7,53 +8,12 @@ import prob_lib
 #2. The most likely object
 #In this scenario, object #1 is a green ball, object #2 is a red ball, object #3 is an orange cheese
 #Based on the robots sensing capabilities, it has determined that 1 
-green_ball = object_lib.make_object("that green ball")
-red_ball = object_lib.make_object("that red ball")
-orange_cheese = object_lib.make_object("that orange cheese")
+green_ball = object_lib.Object(object_lib.FeatureVector("green", "ball")) 
+red_ball =  object_lib.Object(object_lib.FeatureVector("red", "ball")) 
+orange_cheese =  object_lib.Object(object_lib.FeatureVector("orange", "cheese")) 
 
 
 
-#Finds P(R=o | U = u) = P(U=u | R = o) * P(R = o)
-#for all objects, for all u
-def prob_object_is_referred_to(object_list, pos_tagged_list):
-    p_r_is_o_dist = {green_ball: 0.333, red_ball: 0.333, orange_cheese:0.333}
-    p_mod_is_m_given_o = {red_ball:{'red':0.95, 'green':0.025, 'orange':0.025}, green_ball:{'red':0.025, 'green':0.95, 'orange':0.025}, orange_cheese:{'red':0.05, 'green':0.05, 'orange':0.9}} 
-    p_det_is_d_given_o = {red_ball:{'this':0.01, 'that':0.99}, green_ball:{'this':0.99, 'that':0.01}, orange_cheese:{'this':0.90, 'that':0.10}}
-    p_name_is_n_given_o = {red_ball:{'ball':0.90, 'cheese':0.10}, green_ball:{'ball':0.90, 'cheese':0.10}, orange_cheese:{'ball':0.05, 'cheese':0.95}}
-    distribution_list = [p_det_is_d_given_o, p_mod_is_m_given_o, p_name_is_n_given_o]
-    current_prob_given_sentence = prob_lib.bayes_rule_given_u(object_list, distribution_list, pos_tagged_list)
-    return current_prob_given_sentence
-
-        
-def most_probable_object_given_sentence(p_r_is_o_given_u_dist, pos_tagged_list, set_to_search, prior):
-    distribution = prior
-    p_n_is_r_dist = {1:0, 2:0, 3:0}
-    #This is the P(object num = referred_object)
-    #We have P(n = o) and P(o = r)
-    #Now we need to find P(n=r) = P(n=o, o=r) for all o
-    #= P(n=r | o = r) * P(o=r) for all o
-
-    for obj in set_to_search:
-        p_o_is_r = p_r_is_o_given_u_dist[obj]
-        for unknown_n in prior.keys():
-            p_n_is_o = prior[unknown_n][obj.feature_vector.color]
-            p_n_is_r = p_n_is_o*p_o_is_r
-            previous_n_is_r = p_n_is_r_dist[unknown_n]
-            p_n_is_r_dist[unknown_n] = previous_n_is_r +p_n_is_r
-           
-    #and returns the object with the highest p of being that.
-    max_prob = 0
-    object_number = None
-    object_number = prob_lib.most_probable_state(p_n_is_r_dist)
-    return object_number 
-       
-def get_determiner(pos_tagged_list):
-    determiner = None
-    for term in pos_tagged_list:
-        tag = term[1]
-        if tag == 'DT':
-            determiner = term[0]
-    return determiner   
 #Situation: Object 1 is probably a green ball, object 2 is probably a red ball, object 3 is almost certaintly an orange cheese
 priors = {1:{'green': 0.7,'red':0.2, 'orange':0.1},2:{'green': 0.2,'red':0.7, 'orange':0.1}, 3:{'green': 0.1,'red':0.1, 'orange':0.8}}
 
@@ -61,6 +21,9 @@ belief = priors
 activated = []
 in_focus = None
 LTM =  [green_ball, orange_cheese, red_ball]
+
+
+
 while True:
     sentence = raw_input("Ask for object of form determiner- modifier - object. Type exit to escape \n");
 
@@ -68,21 +31,17 @@ while True:
         break
 
     pos_tagged_list = object_lib.tokenize(sentence)
-    determiner = get_determiner(pos_tagged_list)
+    [determiner, reference] = object_lib.get_determiner_and_reference(pos_tagged_list)
+    cognitive_status = reference_resolution_lib.get_cognitive_status(determiner, reference)
 
-    if (determiner == "it"):
+    if (cognitive_status == "it"): # In focus: it
         referred_object = in_focus
-        referred_unknown = prob_lib.most_probable_state_given_o(referred_object, belief) 
-    else:
-        set_to_search = LTM
-        p_r_is_o_given_u_dist = prob_object_is_referred_to(set_to_search, pos_tagged_list)
-        referred_unknown =  most_probable_object_given_sentence(p_r_is_o_given_u_dist, pos_tagged_list, set_to_search, belief)
-
-        referred_object = prob_lib.most_probable_state(p_r_is_o_given_u_dist)
+        referred_unknown = most_probable_state_given_o(referred_object, belief) 
+    else: 
+        [referred_unknown, referred_object] = reference_resolution_lib.resolve_references(cognitive_status,LTM, activated, pos_tagged_list, belief)
 
     activated.append(referred_object)
     in_focus = referred_object
     activated = list(set(activated))
     print "You referred to # ", referred_unknown
     print "Current objects in activated memory", activated
-

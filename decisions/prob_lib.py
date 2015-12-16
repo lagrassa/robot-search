@@ -21,7 +21,17 @@ def most_probable_state_given_o(u,distribution):
             maximum = key
     return maximum
     
-
+#Finds P(R=o | U = u) = P(U=u | R = o) * P(R = o)
+#for all objects, for all u
+def prob_object_is_referred_to(LTM, object_list, pos_tagged_list):
+    [green_ball, orange_cheese, red_ball]= LTM #TODO unpack these in a better way
+    p_r_is_o_dist = {green_ball: 0.333, red_ball: 0.333, orange_cheese:0.333}
+    p_mod_is_m_given_o = {red_ball:{'red':0.95, 'green':0.025, 'orange':0.025}, green_ball:{'red':0.025, 'green':0.95, 'orange':0.025}, orange_cheese:{'red':0.05, 'green':0.05, 'orange':0.9}}
+    p_det_is_d_given_o = {red_ball:{'this':0.01, 'that':0.99}, green_ball:{'this':0.99, 'that':0.01}, orange_cheese:{'this':0.90, 'that':0.10}}
+    p_name_is_n_given_o = {red_ball:{'ball':0.90, 'cheese':0.10}, green_ball:{'ball':0.90, 'cheese':0.10}, orange_cheese:{'ball':0.05, 'cheese':0.95}}
+    distribution_list = [p_det_is_d_given_o, p_mod_is_m_given_o, p_name_is_n_given_o]
+    current_prob_given_sentence = bayes_rule_given_u(object_list, distribution_list, pos_tagged_list)
+    return current_prob_given_sentence
 
 #P(U = property | R = o ) are the parameters and these should be a distribution over
 #Find P(R=o | U = u) = P(U=u | R = o) * P(R = o) for one property 
@@ -33,7 +43,6 @@ def compute_p_r_is_o_given_u(u,object_list,p_u_is_u_given_r_is_o, p_r_is_o_dist)
     for obj in object_list:
         p_r_is_o = p_r_is_o_dist[obj]
         p_u_is_u_for_this_o = p_u_is_u_given_r_is_o[obj]
-        print p_u_is_u_for_this_o
         p_r_is_o_given_u[obj] =  p_u_is_u_for_this_o[u]*p_r_is_o
         total_prob += p_r_is_o_given_u[obj]
     for o in p_r_is_o_given_u.keys():
@@ -69,4 +78,26 @@ def bayes_rule_given_u(object_list, distribution_list, pos_tag_list):
             new_probability = current_prob_given_sentence[obj] + weight*(p_r_is_o_given_u[obj])
             current_prob_given_sentence[obj] = new_probability
     return current_prob_given_sentence
+
+def most_probable_object_given_sentence(p_r_is_o_given_u_dist, pos_tagged_list, set_to_search, prior):
+    distribution = prior
+    p_n_is_r_dist = {1:0, 2:0, 3:0}
+    #This is the P(object num = referred_object)
+    #We have P(n = o) and P(o = r)
+    #Now we need to find P(n=r) = P(n=o, o=r) for all o
+    #= P(n=r | o = r) * P(o=r) for all o
+
+    for obj in set_to_search:
+        p_o_is_r = p_r_is_o_given_u_dist[obj]
+        for unknown_n in prior.keys():
+            p_n_is_o = prior[unknown_n][obj.feature_vector.color]
+            p_n_is_r = p_n_is_o*p_o_is_r
+            previous_n_is_r = p_n_is_r_dist[unknown_n]
+            p_n_is_r_dist[unknown_n] = previous_n_is_r +p_n_is_r
+
+    #and returns the object with the highest p of being that.
+    max_prob = 0
+    object_number = None
+    object_number = most_probable_state(p_n_is_r_dist)
+    return object_number
 
