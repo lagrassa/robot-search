@@ -20,7 +20,7 @@ def get_cognitive_status(determiner, reference):
 def get_set_to_search(cognitive_status, LTM, activated):
    if (cognitive_status == "ACTIVATED" or cognitive_status == "FAMILIAR"):
        if len(activated) > 0:
-           return activated
+           return activated 
        else:
            return LTM #TODO, like after, get it
        
@@ -31,8 +31,9 @@ def get_set_to_search(cognitive_status, LTM, activated):
 
 def resolve_references(cognitive_status,LTM, activated, pos_tagged_list, belief):
     set_to_search = get_set_to_search(cognitive_status, LTM, activated)
+    print "set to search", set_to_search
     p_r_is_o_given_u_dist = prob_lib.prob_object_is_referred_to(LTM, set_to_search, pos_tagged_list)
     referred_unknown =  prob_lib.most_probable_object_given_sentence(p_r_is_o_given_u_dist, pos_tagged_list, set_to_search, belief)
-    referred_object = prob_lib.most_probable_state(p_r_is_o_given_u_dist)
+    referred_object, p_is_referred_to = prob_lib.most_probable_state(p_r_is_o_given_u_dist)
     return [referred_unknown, referred_object]
 

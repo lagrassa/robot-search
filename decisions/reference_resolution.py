@@ -25,7 +25,7 @@ LTM =  [green_ball, orange_cheese, red_ball]
 
 
 while True:
-    sentence = raw_input("Ask for object of form determiner- modifier - object. Type exit to escape \n");
+    sentence = raw_input("\n ======================================================= \n Ask for object of form determiner- modifier - object. Type exit to escape \n >>>>>");
 
     if (sentence == "exit"):
         break
@@ -36,12 +36,13 @@ while True:
 
     if (cognitive_status == "it"): # In focus: it
         referred_object = in_focus
-        referred_unknown = most_probable_state_given_o(referred_object, belief) 
+        referred_unknown, prob_correct = most_probable_state_given_o(referred_object, belief) 
+
     else: 
         [referred_unknown, referred_object] = reference_resolution_lib.resolve_references(cognitive_status,LTM, activated, pos_tagged_list, belief)
-
     activated.append(referred_object)
     in_focus = referred_object
+    print "activated", activated
     activated = list(set(activated))
     print "You referred to # ", referred_unknown
     print "Current objects in activated memory", activated

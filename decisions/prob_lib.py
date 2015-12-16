@@ -8,8 +8,9 @@ def assert_sums_to_one(distribution):
 
 def most_probable_state(distribution):
     most_probable_state = max(distribution, key = lambda x: distribution[x])
+    probability = distribution[most_probable_state]
     assert(type(most_probable_state) != type({}))
-    return most_probable_state
+    return [most_probable_state, probability]
 
 def most_probable_state_given_o(u,distribution):
     maximum = None
@@ -19,7 +20,8 @@ def most_probable_state_given_o(u,distribution):
         if ( p > max_prob):
             max_prob = p
             maximum = key
-    return maximum
+    probability = distribution[most_probable_state]
+    return [maximum, probability]
     
 #Finds P(R=o | U = u) = P(U=u | R = o) * P(R = o)
 #for all objects, for all u
@@ -30,7 +32,7 @@ def prob_object_is_referred_to(LTM, object_list, pos_tagged_list):
     p_det_is_d_given_o = {red_ball:{'this':0.01, 'that':0.99}, green_ball:{'this':0.99, 'that':0.01}, orange_cheese:{'this':0.90, 'that':0.10}}
     p_name_is_n_given_o = {red_ball:{'ball':0.90, 'cheese':0.10}, green_ball:{'ball':0.90, 'cheese':0.10}, orange_cheese:{'ball':0.05, 'cheese':0.95}}
     distribution_list = [p_det_is_d_given_o, p_mod_is_m_given_o, p_name_is_n_given_o]
-    current_prob_given_sentence = bayes_rule_given_u(object_list, distribution_list, pos_tagged_list)
+    current_prob_given_sentence = bayes_rule_given_u(LTM, distribution_list, pos_tagged_list)
     return current_prob_given_sentence
 
 #P(U = property | R = o ) are the parameters and these should be a distribution over
@@ -64,17 +66,17 @@ def uniform_distribution(object_list):
         uniform_dist[o] = equal_probability 
     return uniform_dist
 
-def bayes_rule_given_u(object_list, distribution_list, pos_tag_list):
+def bayes_rule_given_u(LTM, distribution_list, pos_tag_list):
     feature_list = [i[0] for i in pos_tag_list]
-    current_prob_given_sentence = initialize_zero_distribution(object_list)
+    current_prob_given_sentence = initialize_zero_distribution(LTM)
     weight = 1.0/len(distribution_list)
     i = 0
-    p_r_is_o_dist = uniform_distribution(object_list)
+    p_r_is_o_dist = uniform_distribution(LTM)
     for dist in distribution_list:
-        p_r_is_o_given_u = compute_p_r_is_o_given_u(feature_list[i],object_list, dist, p_r_is_o_dist)
+        p_r_is_o_given_u = compute_p_r_is_o_given_u(feature_list[i],LTM, dist, p_r_is_o_dist)
         i+=1
 
-        for obj in object_list:
+        for obj in LTM:
             new_probability = current_prob_given_sentence[obj] + weight*(p_r_is_o_given_u[obj])
             current_prob_given_sentence[obj] = new_probability
     return current_prob_given_sentence
@@ -89,6 +91,7 @@ def most_probable_object_given_sentence(p_r_is_o_given_u_dist, pos_tagged_list, 
 
     for obj in set_to_search:
         p_o_is_r = p_r_is_o_given_u_dist[obj]
+        print p_o_is_r, "probability o is r"
         for unknown_n in prior.keys():
             p_n_is_o = prior[unknown_n][obj.feature_vector.color]
             p_n_is_r = p_n_is_o*p_o_is_r
@@ -98,6 +101,7 @@ def most_probable_object_given_sentence(p_r_is_o_given_u_dist, pos_tagged_list, 
     #and returns the object with the highest p of being that.
     max_prob = 0
     object_number = None
-    object_number = most_probable_state(p_n_is_r_dist)
+    object_number, p_is_object_number = most_probable_state(p_n_is_r_dist)
+    print "P is correct", p_is_object_number
     return object_number
 
