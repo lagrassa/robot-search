@@ -1,4 +1,7 @@
-from  nltk import pos_tag
+#from  nltk import pos_tag
+from nltk.tag.perceptron import PerceptronTagger
+import nltk
+tagger = PerceptronTagger()
 
 
 class Object:
@@ -29,8 +32,9 @@ def make_object(sentence):
     return obj
 
 def tokenize(sentence):
+    tagset = None
     word_list = sentence.split()
-    tagged_list = pos_tag(word_list)
+    tagged_list = nltk.tag._pos_tag(word_list, tagset, tagger)
     return tagged_list
 
 def get_determiner_and_reference(pos_tagged_list):
