@@ -1,7 +1,8 @@
 import object_database
-from nltk.tag.perceptron import PerceptronTagger                                      
+import prob_lib
 import nltk
-tagger = PerceptronTagger()
+from nltk.tag import pos_tag
+
 
 def tokenize(sentence):
     tagset = None
@@ -37,17 +38,23 @@ def get_first_part_of_speech(pos_tagged_list, POS):
 
 def resolve_reference(input_string):
     word_list = input_string.split()
-    tagset = None
-    pos_tagged_list = nltk.tag._pos_tag(word_list, tagset, tagger)
+    #pos_tagged_list = pos_tag(word_list)
+    pos_tagged_list = pos_tag(word_list)
     color = get_first_part_of_speech(pos_tagged_list, "JJ")
     shape = get_first_part_of_speech(pos_tagged_list, "NN")
-    return match_to_database(color, shape)
+    print pos_tagged_list
+    print "Color:     ", color
+    print "Shape:     ", shape
+    dist =  distribution_database(color, shape)
+    print "Distribution   ", dist
+    return prob_lib.max_prob_element(dist)
 
 
-def match_to_database(color, shape):
-    possibilities_based_on_color=object_database.color_to_AR[color]
-    possibilities_based_on_shape = object_database.shape_to_AR[shape]
-    for AR in possibilities_based_on_color:
-        if AR in possibilities_based_on_shape:
-            return str(AR)
-    return "Item not found"
+
+def distribution_database(color, shape):
+    prob_is_right_color = prob_lib.prob_has_property(object_database.color_distribution, color) 
+    prob_is_right_shape = prob_lib.prob_has_property(object_database.shape_distribution, shape) 
+    probability_object_is_right_color_and_shape = prob_lib.joint(prob_is_right_color, prob_is_right_shape)
+    return probability_object_is_right_color_and_shape
+
+    
