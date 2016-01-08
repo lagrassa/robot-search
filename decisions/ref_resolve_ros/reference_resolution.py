@@ -2,6 +2,7 @@ import object_database
 import prob_lib
 import nltk
 from nltk.tag import pos_tag
+import dist
 
 
 def tokenize(sentence):
@@ -45,16 +46,24 @@ def resolve_reference(input_string):
     print pos_tagged_list
     print "Color:     ", color
     print "Shape:     ", shape
-    dist =  distribution_database(color, shape)
+    distribution_on_feature=  distribution_database(color, shape)
     print "Distribution   ", dist
-    return prob_lib.max_prob_element(dist)
+    return prob_lib.max_prob_index(distribution_on_feature, (color, shape))
 
 
 
 def distribution_database(color, shape):
-    prob_is_right_color = prob_lib.prob_has_property(object_database.color_distribution, color) 
-    prob_is_right_shape = prob_lib.prob_has_property(object_database.shape_distribution, shape) 
-    probability_object_is_right_color_and_shape = prob_lib.joint(prob_is_right_color, prob_is_right_shape)
-    return probability_object_is_right_color_and_shape
+    assert (color is not None)
+    assert (shape is not None)
+    assert(object_database.color_distribution is not None)
+    assert(object_database.shape_distribution is not None)
+    
+    #prob_is_right_color = dist.DDist(prob_lib.prob_has_property(object_database.color_distribution, color))
+    #prob_is_right_shape = dist.DDist( prob_lib.prob_has_property(object_database.shape_distribution, shape) )
+    #print "prob is right color", prob_is_right_color
+    probability_object_is_color_and_shape = prob_lib.joint_independent(object_database.color_distribution, object_database.shape_distribution)
+    distribution_on_feature = prob_lib.prob_has_property(probability_object_is_color_and_shape, (color, shape))
+    print "distribution_on_feature", distribution_on_feature
+    return distribution_on_feature 
 
     

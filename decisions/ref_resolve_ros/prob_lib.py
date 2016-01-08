@@ -1,27 +1,25 @@
-def max_prob_element(distribution):
-    return max(distribution, key = lambda x: distribution[x])
+import dist
+def max_prob_index(distribution_table, feature_tuple):
+    print "table", distribution_table
+    return max(distribution_table, key = lambda x: distribution_table[x])
 
-def joint(dist1, dist2):
-    new_dist = {}
-    for obj in dist1:
-        if obj in dist2:
-            new_dist[obj] = dist1[obj]*dist2[obj]
-        else:
-            new_dist[obj] = 0
-    #Set objects in dist2 but not in dist1 to 0 probability
-    leftover = set(dist2)-set(dist1)
-    for obj in leftover:
-        new_dist[obj] = 0
+#Takes an index mapping to distribution and returns a new ddist for each
+#index now mapped to a distribution that that index has feature
+def prob_has_property(distribution_table, feature_tuple):
+    new_dist_table = {}
+    assert(distribution_table is not None)
+    for index in distribution_table:
+        object_dist = distribution_table[index]
+        new_dist_table[index] = object_dist.prob(feature_tuple) 
 
-    return new_dist
+    return new_dist_table
 
-def prob_has_property(distribution, feature):
-    new_dist = {}
-    for obj in distribution:
-        object_dist = distribution[obj]
-        if feature in object_dist:
-            new_dist[obj] = object_dist[feature]
-        else:
-            new_dist[obj] = 0
-    return new_dist
-
+#Takes a distribution table and finds the joint distribution for properties given that they are independent) Distributions must have same indices
+def joint_independent(propertyDist1, propertyDist2):
+    assert(set(propertyDist1.keys()) == set(propertyDist2.keys()))
+    new_dist_table = {}
+    for index in propertyDist1.keys():
+        distProperty1 = propertyDist1[index]
+        distProperty2 = propertyDist2[index]
+        new_dist_table[index] = dist.JDistIndep(distProperty1, distProperty2)
+    return new_dist_table
