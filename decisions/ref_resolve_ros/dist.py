@@ -1,4 +1,4 @@
-#import pdb
+import pdb
 #import math
 import operator
 import miscUtil
@@ -46,8 +46,10 @@ class DiscreteDist:
         @returns: The element in this domain with maximum probability
         """
         best = []                       # list of pairs (elt, p)
+
         for elt in self.support():
             p = self.prob(elt)
+            print "prob", p
             if not best or p >= best[0][1]:
                 if best and p == best[0][1]:
                     best.append((elt, p))

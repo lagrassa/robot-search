@@ -47,9 +47,8 @@ def resolve_reference(input_string):
     print "Color:     ", color
     print "Shape:     ", shape
     distribution_on_feature=  distribution_database(color, shape)
-    print "Distribution   ", dist
-    
-    return distribution_on_feature.maxProbElt()
+    most_likely_element = prob_lib.max_prob_elt(distribution_on_feature.maxProbElt()
+    return most_likely_element
 
 
 
@@ -64,17 +63,14 @@ def distribution_database(color, shape):
 
     object_given_color = prob_lib.p_object_given_feature(color,priors,object_database.color_distribution_given_object)
     object_given_features = prob_lib.p_object_given_feature(shape, object_given_color,object_database.shape_distribution_given_object)
-
-
     return object_given_features 
 
 #Tests
 #print distribution_database("white", "ball")
 #print distribution_database("yellow", "ball")
 #print distribution_database("green", "box")
-print distribution_database("None", "box")
-#print resolve_reference("white ball")
-#print resolve_reference("yellow ball")
-#print resolve_reference("green box")
-
+#print distribution_database("None", "box")
+print resolve_reference("white ball")
+print resolve_reference("yellow ball")
+print resolve_reference("green box")
 

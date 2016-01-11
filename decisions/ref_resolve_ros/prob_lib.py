@@ -1,6 +1,6 @@
 import dist
-def max_prob_index(distribution_table, feature_tuple):
-    return max(distribution_table, key = lambda x: distribution_table[x])
+def max_prob_elt(distribution):
+    return max(distribution.support(), key = lambda x: distribution.prob(x))
 
 #Takes an index mapping to distribution and returns a new ddist for each
 #index now mapped to a distribution that that index has feature
