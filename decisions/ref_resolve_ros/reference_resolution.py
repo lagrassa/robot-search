@@ -48,19 +48,33 @@ def resolve_reference(input_string):
     print "Shape:     ", shape
     distribution_on_feature=  distribution_database(color, shape)
     print "Distribution   ", dist
-    return prob_lib.max_prob_index(distribution_on_feature, (color, shape))
+    
+    return distribution_on_feature.maxProbElt()
+
 
 
 #PBgA = probability of feature set given object
 #PA = probability of object
 #b = evidence
 def distribution_database(color, shape):
-    probability_object_is_color_and_shape_given_object = prob_lib.joint_independent(object_database.color_distribution_given_object, object_database.shape_distribution_given_object)
-    probability_object_is_correct_color_and_shape_given_object = prob_lib.table_to_function(probability_object_is_color_and_shape_given_object)
-    possible_objects = probability_object_is_color_and_shape_given_object.keys()
+
+    possible_objects = object_database.color_distribution_given_object.keys()
     priors = dist.UniformDist(possible_objects)
-    object_given_features=dist.bayesEvidence(priors, probability_object_is_correct_color_and_shape_given_object, (color,shape)) 
-    print object_given_features
+    object_given_shape = prob_lib.p_object_given_feature(shape,priors,object_database.shape_distribution_given_object)
+
+    object_given_color = prob_lib.p_object_given_feature(color,priors,object_database.color_distribution_given_object)
+    object_given_features = prob_lib.p_object_given_feature(shape, object_given_color,object_database.shape_distribution_given_object)
+
+
     return object_given_features 
 
-distribution_database("white", "ball") 
+#Tests
+#print distribution_database("white", "ball")
+#print distribution_database("yellow", "ball")
+#print distribution_database("green", "box")
+print distribution_database("None", "box")
+#print resolve_reference("white ball")
+#print resolve_reference("yellow ball")
+#print resolve_reference("green box")
+
+
