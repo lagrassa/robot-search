@@ -53,17 +53,14 @@ def resolve_reference(input_string):
 
 
 def distribution_database(color, shape):
-    assert (color is not None)
-    assert (shape is not None)
-    assert(object_database.color_distribution is not None)
-    assert(object_database.shape_distribution is not None)
-    
-    #prob_is_right_color = dist.DDist(prob_lib.prob_has_property(object_database.color_distribution, color))
-    #prob_is_right_shape = dist.DDist( prob_lib.prob_has_property(object_database.shape_distribution, shape) )
-    #print "prob is right color", prob_is_right_color
-    probability_object_is_color_and_shape = prob_lib.joint_independent(object_database.color_distribution, object_database.shape_distribution)
-    distribution_on_feature = prob_lib.prob_has_property(probability_object_is_color_and_shape, (color, shape))
-    print "distribution_on_feature", distribution_on_feature
-    return distribution_on_feature 
+    probability_object_is_color_and_shape_given_object = prob_lib.joint_independent(object_database.color_distribution_given_object, object_database.shape_distribution_given_object)
+    probability_object_is_correct_color_and_shape_given_object = prob_lib.prob_has_property(probability_object_is_color_and_shape_given_object, (color, shape))
+    possible_objects = probability_object_is_correct_color_and_shape_given_object.keys()
+
+    priors = dist.UniformDist(possible_objects)
+    probability_of_mentioned_shape = totalProbability(priors, 
+
+    object_given_features=dist.bayesEvidence(priors, probability_object_is_correct_color_and_shape_given_object, probability_feature_is_mentioned_feature) 
+    return object_given_features 
 
     
