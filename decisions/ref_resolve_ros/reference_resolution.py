@@ -1,5 +1,5 @@
 import object_database
-import prob_lib
+import distribution_table
 import nltk.tag
 #from nltk.tag import pos_tag
 import dist
@@ -21,8 +21,9 @@ def resolve_reference(input_string, tagger):
     color = get_first_part_of_speech(pos_tagged_list, "JJ")
     shape = get_first_part_of_speech(pos_tagged_list, "NN")
     distribution_on_feature=  object_given_features(color, shape)
-    most_likely_element = prob_lib.max_prob_elt(distribution_on_feature)
-    return most_likely_element
+    most_likely_element = distribution_table.max_prob_elt(distribution_on_feature)
+    most_likely_element_location = object_database.AR_to_location[most_likely_element]
+    return most_likely_element_location
 
 
 
@@ -30,12 +31,14 @@ def resolve_reference(input_string, tagger):
 #PA = probability of object
 #b = evidence
 def object_given_features(color, shape):
-    possible_objects = object_database.color_distribution_given_object.keys()
+    possible_objects = object_database.color_distribution_given_object.object_to_dist.keys()
     priors = dist.UniformDist(possible_objects)
-    object_given_shape = prob_lib.p_object_given_feature(shape,priors,object_database.shape_distribution_given_object)
+    dist_table_shape = object_database.shape_distribution_given_object
+    dist_table_color = object_database.color_distribution_given_object
 
-    object_given_color = prob_lib.p_object_given_feature(color,priors,object_database.color_distribution_given_object)
-    object_given_features = prob_lib.p_object_given_feature(shape, object_given_color,object_database.shape_distribution_given_object)
+    object_given_color = dist_table_color.p_object_given_feature(color,priors)
+
+    object_given_features = dist_table_shape.p_object_given_feature(shape, object_given_color)
     return object_given_features 
 
 #Tests
